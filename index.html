@@ -477,6 +477,9 @@
         <span class="app-card-desc">フジパン(株)</span>
       </div>
     </div>
+    <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
+      <span>ver 1.4　</span><span>更新日：2026年3月12日</span>
+    </div>
   </div>
 </div>
 
@@ -578,10 +581,16 @@
             </select>
           </div>
           <div class="reg-row">
+            <input class="reg-input" id="reg-time-start" type="time" style="max-width:110px" title="開始時間">
+            <span style="display:flex;align-items:center;color:var(--muted);font-size:0.85rem">〜</span>
+            <input class="reg-input" id="reg-time-end" type="time" style="max-width:110px" title="終了時間">
+          </div>
+          <div class="reg-row">
             <input class="reg-input" id="reg-emoji" placeholder="絵文字🍜" maxlength="4" style="max-width:80px;text-align:center">
             <input class="reg-input" id="reg-name" placeholder="料理名（例：鶏の唐揚げ）" maxlength="20">
           </div>
           <div class="reg-row">
+            <input class="reg-input" id="reg-price" type="number" placeholder="値段（円）" min="0" max="99999" style="max-width:120px">
             <input class="reg-input" id="reg-note" placeholder="備考（省略可）" maxlength="30">
             <button class="reg-btn" onclick="addMenuItem()">追加</button>
           </div>
@@ -941,8 +950,8 @@ function goTo(dest) {
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const id = name === 'bulletin' ? 'page-bulletin' : name === 'meal' ? 'page-meal' : name === 'care' ? 'page-care' : 'page-home';
-  document.getElementById(id).classList.add('active');
+  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home' };
+  document.getElementById(idMap[name] || 'page-home').classList.add('active');
   currentPage = name;
 }
 
@@ -1335,11 +1344,15 @@ function addMenuItem() {
   const emoji=document.getElementById('reg-emoji').value.trim()||'🍽️';
   const name=document.getElementById('reg-name').value.trim();
   const note=document.getElementById('reg-note').value.trim();
+  const price=document.getElementById('reg-price').value.trim();
+  const timeStart=document.getElementById('reg-time-start').value;
+  const timeEnd=document.getElementById('reg-time-end').value;
   if(!name){alert('料理名を入力してください');return;}
   const items = getMenuItems(mealDate, meal).slice();
-  items.push({id:Date.now().toString(),emoji,name,note});
+  // 時間帯はメニュー全体で共有（最初のアイテムで設定、後続は上書き）
+  items.push({id:Date.now().toString(),emoji,name,note,price:price?Number(price):null,timeStart,timeEnd});
   fbSetMenu(mealDate, meal, items);
-  document.getElementById('reg-emoji').value=''; document.getElementById('reg-name').value=''; document.getElementById('reg-note').value='';
+  document.getElementById('reg-emoji').value=''; document.getElementById('reg-name').value=''; document.getElementById('reg-note').value=''; document.getElementById('reg-price').value='';
 }
 function deleteMealMenuItem(date, meal, id) {
   const items = getMenuItems(date, meal).filter(i=>i.id!==id);
@@ -1356,7 +1369,7 @@ function placeMealOrder(meal, itemId, rice, who) {
   if (existing) fbDeleteOrder(existing.id);
   const item=getMenuItems(mealDate,meal).find(i=>i.id===itemId); if(!item)return;
   const t=new Date(); const timeStr=`${pad(t.getHours())}:${pad(t.getMinutes())}`;
-  fbAddOrder({date:mealDate,meal,who,itemId,itemName:item.name,itemEmoji:item.emoji,rice,time:timeStr});
+  fbAddOrder({date:mealDate,meal,who,itemId,itemName:item.name,itemEmoji:item.emoji,itemPrice:item.price??null,rice,time:timeStr});
   showToast(`${who}の${MEALS[meal].label}を注文しました`);
 }
 function cancelMealOrder(date, meal, who) {
@@ -1391,8 +1404,15 @@ function renderMealOrderPanel() {
   ['morning','lunch','dinner'].forEach(meal => {
     const m=MEALS[meal]; const items=getMenuItems(mealDate,meal);
     const section=document.createElement('div'); section.className='meal-section';
+
+    // 時間帯：アイテムに設定があればそれを使う、なければデフォルト
+    const firstItem = items[0];
+    const timeLabel = (firstItem && firstItem.timeStart && firstItem.timeEnd)
+      ? `${firstItem.timeStart}〜${firstItem.timeEnd}`
+      : m.time;
+
     const hdr=document.createElement('div'); hdr.className=`meal-section-header ${m.cls}`;
-    hdr.innerHTML=`<span class="meal-icon">${m.icon}</span><span class="meal-label">${m.label}</span><span class="meal-time">${m.time}</span>`;
+    hdr.innerHTML=`<span class="meal-icon">${m.icon}</span><span class="meal-label">${m.label}</span><span class="meal-time">${timeLabel}</span>`;
     section.appendChild(hdr);
 
     if(items.length===0){
@@ -1406,7 +1426,7 @@ function renderMealOrderPanel() {
 
       if(existingOrder){
         const conf=document.createElement('div'); conf.className='order-confirmed';
-        conf.innerHTML=`<span style="font-size:1.3rem">${existingOrder.itemEmoji}</span><div><div class="conf-text">${who}：${escHtml(existingOrder.itemName)}</div><div class="conf-detail">🍚 ご飯 ${existingOrder.rice}　${existingOrder.time} 注文済み</div></div><button class="conf-cancel" onclick="cancelMealOrder('${mealDate}','${meal}','${who}')">取消</button>`;
+        conf.innerHTML=`<span style="font-size:1.3rem">${existingOrder.itemEmoji}</span><div><div class="conf-text">${who}：${escHtml(existingOrder.itemName)}${existingOrder.itemPrice!=null?` <span style="color:var(--amber);font-size:0.8rem">¥${existingOrder.itemPrice.toLocaleString()}</span>`:''}</div><div class="conf-detail">🍚 ご飯 ${existingOrder.rice}　${existingOrder.time} 注文済み</div></div><button class="conf-cancel" onclick="cancelMealOrder('${mealDate}','${meal}','${who}')">取消</button>`;
         section.appendChild(conf);
       } else {
         const wrapper=document.createElement('div');
@@ -1416,7 +1436,7 @@ function renderMealOrderPanel() {
         let selectedItemId=null;
         items.forEach(item=>{
           const el=document.createElement('div'); el.className='menu-item';
-          el.innerHTML=`<span class="item-emoji">${item.emoji}</span><div class="item-info"><div class="item-name">${escHtml(item.name)}</div>${item.note?`<div class="item-note">${escHtml(item.note)}</div>`:''}</div><span class="item-check">✓</span>`;
+          el.innerHTML=`<span class="item-emoji">${item.emoji}</span><div class="item-info"><div class="item-name">${escHtml(item.name)}${item.price!=null?` <span style="color:var(--amber);font-size:0.8rem;font-weight:700">¥${item.price.toLocaleString()}</span>`:''}</div>${item.note?`<div class="item-note">${escHtml(item.note)}</div>`:''}</div><span class="item-check">✓</span>`;
           el.onclick=()=>{
             menuDiv.querySelectorAll('.menu-item').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); selectedItemId=item.id;
             riceDiv.classList.add('show'); orderDiv.style.display='block';
@@ -1455,7 +1475,7 @@ function renderMealAdminContent() {
       (dateMenus[meal]||[]).forEach(item=>{
         const el=document.createElement('div'); el.className='reg-menu-item';
         const tagCls=meal==='morning'?'tag-morning':meal==='lunch'?'tag-lunch':'tag-dinner';
-        el.innerHTML=`<span class="reg-meal-tag ${tagCls}">${MEALS[meal].label}</span><span style="font-size:1.1rem">${item.emoji}</span><span class="reg-item-name">${escHtml(item.name)}${item.note?` <span style="color:var(--muted);font-size:0.78rem">（${escHtml(item.note)}）</span>`:''}</span><button class="reg-del-btn" onclick="deleteMealMenuItem('${mealDate}','${meal}','${item.id}')">✕</button>`;
+        el.innerHTML=`<span class="reg-meal-tag ${tagCls}">${MEALS[meal].label}</span><span style="font-size:1.1rem">${item.emoji}</span><span class="reg-item-name">${escHtml(item.name)}${item.price!=null?` <span style="color:var(--amber);font-weight:700">¥${item.price.toLocaleString()}</span>`:''}${item.timeStart&&item.timeEnd?` <span style="color:var(--muted);font-size:0.75rem">🕐${item.timeStart}〜${item.timeEnd}</span>`:''}</span><button class="reg-del-btn" onclick="deleteMealMenuItem('${mealDate}','${meal}','${item.id}')">✕</button>`;
         container.appendChild(el);
       });
     });
@@ -1468,7 +1488,7 @@ function renderMealAdminContent() {
   const mOrder={morning:0,lunch:1,dinner:2};
   [...orders].sort((a,b)=>mOrder[a.meal]-mOrder[b.meal]).forEach(o=>{
     const el=document.createElement('div'); el.className='order-card';
-    el.innerHTML=`<div class="order-who">${o.who}</div><div class="order-info"><div class="order-meal-tag">${MEALS[o.meal].label}</div><div class="order-item-name">${o.itemEmoji} ${escHtml(o.itemName)}</div><div class="order-rice">🍚 ご飯 ${o.rice}</div><div class="order-time-label">${o.time} 注文</div></div><button class="order-del-btn" onclick="deleteMealOrderAdmin('${o.id}')">✕</button>`;
+    el.innerHTML=`<div class="order-who">${o.who}</div><div class="order-info"><div class="order-meal-tag">${MEALS[o.meal].label}</div><div class="order-item-name">${o.itemEmoji} ${escHtml(o.itemName)}${o.itemPrice!=null?` <span style="color:var(--amber);font-size:0.8rem;font-weight:700">¥${o.itemPrice.toLocaleString()}</span>`:''}</div><div class="order-rice">🍚 ご飯 ${o.rice}</div><div class="order-time-label">${o.time} 注文</div></div><button class="order-del-btn" onclick="deleteMealOrderAdmin('${o.id}')">✕</button>`;
     ordersContainer.appendChild(el);
   });
 }
