@@ -410,12 +410,46 @@
   #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--deep); color:var(--cream); padding:12px 24px; border-radius:24px; font-family:'Zen Maru Gothic',sans-serif; font-size:0.9rem; z-index:9999; transition:transform 0.3s ease; white-space:nowrap; }
   #toast.show { transform:translateX(-50%) translateY(0); }
 
+  /* 一括登録 */
+  .bulk-meal-block { background:white; border-radius:14px; margin-bottom:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
+  .bulk-meal-header { padding:10px 14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; font-family:'Zen Maru Gothic',sans-serif; font-size:0.95rem; color:var(--deep); font-weight:700; }
+  .bulk-time-row { display:flex; align-items:center; gap:6px; }
+  .bulk-items { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+  .bulk-item-row { display:flex; gap:6px; align-items:center; }
+  .bulk-item-row .reg-input { min-width:0; }
+  .bulk-add-row-btn { width:100%; padding:8px; background:none; border:1px dashed var(--amber); color:var(--amber); font-size:0.85rem; cursor:pointer; border-top:1px dashed var(--warm); font-family:'Zen Maru Gothic',sans-serif; transition:background 0.15s; }
+  .bulk-add-row-btn:hover { background:var(--cream); }
+  .bulk-save-btn { width:100%; padding:13px; background:var(--green); color:white; border:none; border-radius:12px; font-family:'Zen Maru Gothic',sans-serif; font-size:1rem; cursor:pointer; transition:background 0.2s; margin-top:4px; }
+  .bulk-save-btn:hover { background:#5A8060; }
+
+  /* ご飯チェックボックス */
+  .rice-checkbox-row { display:flex; align-items:center; gap:10px; padding:8px 12px 4px; }
+  .rice-checkbox-label { display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--muted); cursor:pointer; user-select:none; }
+  .rice-checkbox-label input[type=checkbox] { width:16px; height:16px; accent-color:var(--green); cursor:pointer; }
+
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:var(--warm); border-radius:4px; }
 </style>
 </head>
 <body>
+
+<!-- 家族用ロック画面 -->
+<div id="family-lock" style="display:none;position:fixed;inset:0;background:var(--deep);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+  <div style="background:var(--cream);border-radius:24px;padding:40px 32px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+    <div style="font-size:3rem;margin-bottom:12px">🏠</div>
+    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;color:var(--deep);margin-bottom:8px">家族のページ</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:24px">パスワードを入力してください</p>
+    <input type="password" id="family-pw-input" placeholder="••••••" maxlength="20"
+      style="width:100%;padding:12px 14px;border:2px solid var(--warm);border-radius:10px;font-size:1.1rem;outline:none;text-align:center;letter-spacing:0.2em;margin-bottom:10px;color:var(--text);"
+      onkeydown="if(event.key==='Enter') checkFamilyPw()">
+    <div id="family-pw-error" style="color:var(--red);font-size:0.82rem;min-height:18px;margin-bottom:10px"></div>
+    <button onclick="checkFamilyPw()"
+      style="width:100%;padding:13px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;cursor:pointer;">
+      入る
+    </button>
+  </div>
+</div>
 
 <!-- ADMIN MODAL -->
 <div id="admin-modal">
@@ -478,7 +512,7 @@
       </div>
     </div>
     <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
-      <span>ver 1.4　</span><span>更新日：2026年3月12日</span>
+      <span>ver 1.7　</span><span>更新日：2026年3月12日</span>
     </div>
   </div>
 </div>
@@ -571,31 +605,72 @@
     </div>
     <div id="meal-admin-content" style="display:none">
       <div class="meal-admin-section">
-        <h3>📝 本日のメニュー登録</h3>
-        <div class="menu-register">
-          <div class="reg-row">
-            <select class="reg-select" id="reg-meal">
-              <option value="morning">🌅 朝食</option>
-              <option value="lunch">☀️ 昼食</option>
-              <option value="dinner">🌙 夕食</option>
-            </select>
+        <h3>📝 メニュー一括登録</h3>
+        <!-- 一括登録フォーム：朝・昼・夕 -->
+        <div id="bulk-register-form">
+          <!-- 朝食 -->
+          <div class="bulk-meal-block">
+            <div class="bulk-meal-header morning-header">
+              <span>🌅 朝食</span>
+              <div class="bulk-time-row">
+                <input class="reg-input" id="bulk-time-start-morning" type="time" style="max-width:100px">
+                <span style="color:var(--muted);font-size:0.85rem">〜</span>
+                <input class="reg-input" id="bulk-time-end-morning" type="time" style="max-width:100px">
+              </div>
+            </div>
+            <div class="bulk-items" id="bulk-items-morning">
+              <div class="bulk-item-row">
+                <input class="reg-input" placeholder="絵文字" maxlength="4" style="max-width:56px;text-align:center" data-meal="morning" data-field="emoji">
+                <input class="reg-input" placeholder="料理名" maxlength="20" style="flex:1" data-meal="morning" data-field="name">
+                <input class="reg-input" type="number" placeholder="円" min="0" max="99999" style="max-width:80px" data-meal="morning" data-field="price">
+                <input class="reg-input" placeholder="備考" maxlength="30" style="flex:1" data-meal="morning" data-field="note">
+              </div>
+            </div>
+            <button class="bulk-add-row-btn" onclick="addBulkRow('morning')">＋ 行を追加</button>
           </div>
-          <div class="reg-row">
-            <input class="reg-input" id="reg-time-start" type="time" style="max-width:110px" title="開始時間">
-            <span style="display:flex;align-items:center;color:var(--muted);font-size:0.85rem">〜</span>
-            <input class="reg-input" id="reg-time-end" type="time" style="max-width:110px" title="終了時間">
+          <!-- 昼食 -->
+          <div class="bulk-meal-block">
+            <div class="bulk-meal-header lunch-header">
+              <span>☀️ 昼食</span>
+              <div class="bulk-time-row">
+                <input class="reg-input" id="bulk-time-start-lunch" type="time" style="max-width:100px">
+                <span style="color:var(--muted);font-size:0.85rem">〜</span>
+                <input class="reg-input" id="bulk-time-end-lunch" type="time" style="max-width:100px">
+              </div>
+            </div>
+            <div class="bulk-items" id="bulk-items-lunch">
+              <div class="bulk-item-row">
+                <input class="reg-input" placeholder="絵文字" maxlength="4" style="max-width:56px;text-align:center" data-meal="lunch" data-field="emoji">
+                <input class="reg-input" placeholder="料理名" maxlength="20" style="flex:1" data-meal="lunch" data-field="name">
+                <input class="reg-input" type="number" placeholder="円" min="0" max="99999" style="max-width:80px" data-meal="lunch" data-field="price">
+                <input class="reg-input" placeholder="備考" maxlength="30" style="flex:1" data-meal="lunch" data-field="note">
+              </div>
+            </div>
+            <button class="bulk-add-row-btn" onclick="addBulkRow('lunch')">＋ 行を追加</button>
           </div>
-          <div class="reg-row">
-            <input class="reg-input" id="reg-emoji" placeholder="絵文字🍜" maxlength="4" style="max-width:80px;text-align:center">
-            <input class="reg-input" id="reg-name" placeholder="料理名（例：鶏の唐揚げ）" maxlength="20">
+          <!-- 夕食 -->
+          <div class="bulk-meal-block">
+            <div class="bulk-meal-header dinner-header">
+              <span>🌙 夕食</span>
+              <div class="bulk-time-row">
+                <input class="reg-input" id="bulk-time-start-dinner" type="time" style="max-width:100px">
+                <span style="color:var(--muted);font-size:0.85rem">〜</span>
+                <input class="reg-input" id="bulk-time-end-dinner" type="time" style="max-width:100px">
+              </div>
+            </div>
+            <div class="bulk-items" id="bulk-items-dinner">
+              <div class="bulk-item-row">
+                <input class="reg-input" placeholder="絵文字" maxlength="4" style="max-width:56px;text-align:center" data-meal="dinner" data-field="emoji">
+                <input class="reg-input" placeholder="料理名" maxlength="20" style="flex:1" data-meal="dinner" data-field="name">
+                <input class="reg-input" type="number" placeholder="円" min="0" max="99999" style="max-width:80px" data-meal="dinner" data-field="price">
+                <input class="reg-input" placeholder="備考" maxlength="30" style="flex:1" data-meal="dinner" data-field="note">
+              </div>
+            </div>
+            <button class="bulk-add-row-btn" onclick="addBulkRow('dinner')">＋ 行を追加</button>
           </div>
-          <div class="reg-row">
-            <input class="reg-input" id="reg-price" type="number" placeholder="値段（円）" min="0" max="99999" style="max-width:120px">
-            <input class="reg-input" id="reg-note" placeholder="備考（省略可）" maxlength="30">
-            <button class="reg-btn" onclick="addMenuItem()">追加</button>
-          </div>
+          <button class="bulk-save-btn" onclick="saveBulkMenu()">💾 一括保存</button>
         </div>
-        <div id="reg-menu-list" class="reg-menu-list"></div>
+        <div id="reg-menu-list" class="reg-menu-list" style="margin-top:14px"></div>
       </div>
       <div class="meal-admin-section">
         <h3>📋 本日の注文一覧</h3>
@@ -783,9 +858,18 @@ function setupFirebaseListeners() {
   });
 
   // 食事注文
+  let _prevOrderCount = null;
   db.ref(FB_ORDERS).on('value', snap => {
     const val = snap.val();
-    _orders = val ? Object.values(val) : [];
+    const newOrders = val ? Object.values(val) : [];
+    // 管理画面が開いていて、初回以降に注文が増えたら通知
+    if (_prevOrderCount !== null && newOrders.length > _prevOrderCount && currentPage === 'meal' && currentMealTab === 'admin' && isAdmin) {
+      const latest = newOrders.sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
+      playOrderSound();
+      showOrderNotification(latest);
+    }
+    _prevOrderCount = newOrders.length;
+    _orders = newOrders;
     if (currentPage === 'meal') { renderMealOrderPanel(); if(isAdmin) renderMealAdminContent(); }
   });
 
@@ -825,6 +909,7 @@ function deleteLocalImage(postId, imgIdx) {
 // CONFIG
 // ============================================================
 const ADMIN_PASSWORD = '1022';
+const FAMILY_PASSWORD = 'family2026'; // 家族用パスワード（変更可）
 
 // localStorageキー（画像のみ残す）
 const POSTS_KEY  = 'fam_posts_v2';   // 移行用（使わなくなる）
@@ -991,6 +1076,7 @@ function checkPw() {
     document.getElementById('pw-input').value = '';
     closeAdminModal();
     updateAdminUI();
+    requestNotificationPermission();
   } else {
     document.getElementById('pw-error').textContent = 'パスワードが違います';
   }
@@ -1339,21 +1425,57 @@ function getMealMenus() { return _menus; }
 function saveMealMenus() {}
 function getMenuItems(date, meal) { return (_menus[date]&&_menus[date][meal])?_menus[date][meal]:[]; }
 
-function addMenuItem() {
-  const meal=document.getElementById('reg-meal').value;
-  const emoji=document.getElementById('reg-emoji').value.trim()||'🍽️';
-  const name=document.getElementById('reg-name').value.trim();
-  const note=document.getElementById('reg-note').value.trim();
-  const price=document.getElementById('reg-price').value.trim();
-  const timeStart=document.getElementById('reg-time-start').value;
-  const timeEnd=document.getElementById('reg-time-end').value;
-  if(!name){alert('料理名を入力してください');return;}
-  const items = getMenuItems(mealDate, meal).slice();
-  // 時間帯はメニュー全体で共有（最初のアイテムで設定、後続は上書き）
-  items.push({id:Date.now().toString(),emoji,name,note,price:price?Number(price):null,timeStart,timeEnd});
-  fbSetMenu(mealDate, meal, items);
-  document.getElementById('reg-emoji').value=''; document.getElementById('reg-name').value=''; document.getElementById('reg-note').value=''; document.getElementById('reg-price').value='';
+function addBulkRow(meal) {
+  const container = document.getElementById(`bulk-items-${meal}`);
+  const row = document.createElement('div');
+  row.className = 'bulk-item-row';
+  row.innerHTML = `
+    <input class="reg-input" placeholder="絵文字" maxlength="4" style="max-width:56px;text-align:center" data-meal="${meal}" data-field="emoji">
+    <input class="reg-input" placeholder="料理名" maxlength="20" style="flex:1" data-meal="${meal}" data-field="name">
+    <input class="reg-input" type="number" placeholder="円" min="0" max="99999" style="max-width:80px" data-meal="${meal}" data-field="price">
+    <input class="reg-input" placeholder="備考" maxlength="30" style="flex:1" data-meal="${meal}" data-field="note">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;flex-shrink:0">✕</button>
+  `;
+  container.appendChild(row);
 }
+
+function saveBulkMenu() {
+  let saved = 0;
+  ['morning','lunch','dinner'].forEach(meal => {
+    const timeStart = document.getElementById(`bulk-time-start-${meal}`).value;
+    const timeEnd   = document.getElementById(`bulk-time-end-${meal}`).value;
+    const rows = document.querySelectorAll(`#bulk-items-${meal} .bulk-item-row`);
+    const items = [];
+    rows.forEach(row => {
+      const emoji = (row.querySelector('[data-field="emoji"]')?.value.trim()) || '🍽️';
+      const name  = row.querySelector('[data-field="name"]')?.value.trim();
+      const price = row.querySelector('[data-field="price"]')?.value.trim();
+      const note  = row.querySelector('[data-field="note"]')?.value.trim();
+      if (!name) return;
+      items.push({ id: Date.now().toString() + Math.random().toString(36).slice(2,6), emoji, name, note: note||'', price: price ? Number(price) : null, timeStart, timeEnd });
+    });
+    if (items.length > 0) { fbSetMenu(mealDate, meal, items); saved++; }
+  });
+  if (saved > 0) {
+    showToast('メニューを一括保存しました');
+    // フォームをリセット
+    ['morning','lunch','dinner'].forEach(meal => {
+      document.getElementById(`bulk-time-start-${meal}`).value = '';
+      document.getElementById(`bulk-time-end-${meal}`).value = '';
+      const container = document.getElementById(`bulk-items-${meal}`);
+      container.innerHTML = `<div class="bulk-item-row">
+        <input class="reg-input" placeholder="絵文字" maxlength="4" style="max-width:56px;text-align:center" data-meal="${meal}" data-field="emoji">
+        <input class="reg-input" placeholder="料理名" maxlength="20" style="flex:1" data-meal="${meal}" data-field="name">
+        <input class="reg-input" type="number" placeholder="円" min="0" max="99999" style="max-width:80px" data-meal="${meal}" data-field="price">
+        <input class="reg-input" placeholder="備考" maxlength="30" style="flex:1" data-meal="${meal}" data-field="note">
+      </div>`;
+    });
+  } else {
+    alert('料理名を1つ以上入力してください');
+  }
+}
+
+function addMenuItem() {} // 後方互換用（使わない）
 function deleteMealMenuItem(date, meal, id) {
   const items = getMenuItems(date, meal).filter(i=>i.id!==id);
   fbSetMenu(date, meal, items);
@@ -1390,6 +1512,16 @@ function formatDateLabel(ds) {
   const today=toDateStr(new Date()); const tmr=(()=>{const t=new Date();t.setDate(t.getDate()+1);return toDateStr(t);})();
   let prefix=''; if(ds===today)prefix='今日・'; else if(ds===tmr)prefix='明日・';
   return `${prefix}${d.getMonth()+1}月${d.getDate()}日（${dow}）`;
+}
+
+function toggleRiceSelect(cb, gid) {
+  const btns = document.getElementById(gid);
+  if (!btns) return;
+  btns.style.display = cb.checked ? 'flex' : 'none';
+  if (cb.checked) {
+    // デフォルトで「中」を選択
+    btns.querySelectorAll('.rice-btn').forEach(b => b.classList.toggle('selected', b.textContent === '中'));
+  }
 }
 
 function selectRiceBtn(btn, groupId) {
@@ -1447,15 +1579,28 @@ function renderMealOrderPanel() {
 
         const riceDiv=document.createElement('div'); riceDiv.className='rice-section';
         const gid=`rice_${meal}_${who.replace(/[^\w]/g,'_')}`;
-        riceDiv.innerHTML=`<div class="rice-label">🍚 ご飯の量</div><div class="rice-btns" id="${gid}">${RICE_OPTIONS.map(r=>`<button class="rice-btn${r==='中'?' selected':''}" onclick="selectRiceBtn(this,'${gid}')">${r}</button>`).join('')}</div>`;
+        const cbId=`rice_cb_${meal}_${who.replace(/[^\w]/g,'_')}`;
+        riceDiv.innerHTML=`
+          <div class="rice-checkbox-row">
+            <label class="rice-checkbox-label">
+              <input type="checkbox" id="${cbId}" onchange="toggleRiceSelect(this,'${gid}')">
+              🍚 ご飯あり
+            </label>
+          </div>
+          <div class="rice-btns" id="${gid}" style="display:none;padding:0 12px 10px">
+            ${RICE_OPTIONS.map(r=>`<button class="rice-btn" onclick="selectRiceBtn(this,'${gid}')">${r}</button>`).join('')}
+          </div>`;
         wrapper.appendChild(riceDiv);
 
         const orderDiv=document.createElement('div'); orderDiv.className='order-section'; orderDiv.style.display='none';
         const orderBtn=document.createElement('button'); orderBtn.className='order-btn'; orderBtn.textContent=`${who}の${m.label}を注文する`;
         orderBtn.onclick=()=>{
           if(!selectedItemId){alert('料理を選んでください');return;}
+          const cb=document.getElementById(`rice_cb_${meal}_${who.replace(/[^\w]/g,'_')}`);
+          const riceChecked = cb && cb.checked;
           const sel=document.getElementById(gid)?.querySelector('.rice-btn.selected');
-          placeMealOrder(meal,selectedItemId,sel?sel.textContent:'中',who);
+          const rice = riceChecked ? (sel ? sel.textContent : '中') : 'なし';
+          placeMealOrder(meal,selectedItemId,rice,who);
         };
         orderDiv.appendChild(orderBtn); wrapper.appendChild(orderDiv); section.appendChild(wrapper);
       }
@@ -1695,8 +1840,71 @@ function showToast(msg) {
 }
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
-// INIT - Firebaseリスナー起動
-setupFirebaseListeners();
+// ============================================================
+// 注文通知（音 + ブラウザ通知）
+// ============================================================
+function playOrderSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const times = [[0, 880], [0.18, 1100], [0.36, 880]];
+    times.forEach(([t, freq]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.15);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.15);
+    });
+  } catch(e) { console.warn('音声再生エラー', e); }
+}
+
+function showOrderNotification(order) {
+  // アプリ内トースト（常に表示）
+  const who = order ? order.who : '';
+  const item = order ? order.itemName : '';
+  showToast(`🍽️ ${who}から注文が届きました！\n${item}`);
+
+  // ブラウザ通知（許可済みなら）
+  if (Notification.permission === 'granted' && order) {
+    new Notification('🍽️ 新しい注文', {
+      body: `${who}：${item}`,
+      icon: 'https://kouki02-debug.github.io/family-app/favicon.ico'
+    });
+  }
+}
+
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+// ============================================================
+const FAMILY_UNLOCKED_KEY = 'fam_unlocked_v1';
+
+function checkFamilyPw() {
+  const v = document.getElementById('family-pw-input').value;
+  if (v === FAMILY_PASSWORD) {
+    sessionStorage.setItem(FAMILY_UNLOCKED_KEY, '1');
+    document.getElementById('family-lock').style.display = 'none';
+    setupFirebaseListeners();
+  } else {
+    document.getElementById('family-pw-error').textContent = 'パスワードが違います';
+    document.getElementById('family-pw-input').value = '';
+    document.getElementById('family-pw-input').focus();
+  }
+}
+
+// INIT - 認証チェック
+if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
+  document.getElementById('family-lock').style.display = 'none';
+  setupFirebaseListeners();
+} else {
+  document.getElementById('family-lock').style.display = 'flex';
+  setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
+}
 </script>
 </body>
 </html>
