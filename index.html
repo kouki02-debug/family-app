@@ -1221,6 +1221,8 @@ function goTo(dest) {
     switchInvTab('list');
   }
 }
+
+function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home', inventory: 'page-inventory' };
   document.getElementById(idMap[name] || 'page-home').classList.add('active');
@@ -2141,22 +2143,30 @@ function requestNotificationPermission() {
 const FAMILY_UNLOCKED_KEY = 'fam_unlocked_v1';
 
 function checkFamilyPw() {
-  const v = document.getElementById('family-pw-input').value;
-  if (v === FAMILY_PASSWORD) {
-    sessionStorage.setItem(FAMILY_UNLOCKED_KEY, '1');
-    document.getElementById('family-lock').style.display = 'none';
-    setupFirebaseListeners();
-  } else {
-    document.getElementById('family-pw-error').textContent = 'パスワードが違います';
-    document.getElementById('family-pw-input').value = '';
-    document.getElementById('family-pw-input').focus();
+  try {
+    const v = document.getElementById('family-pw-input').value;
+    if (v === FAMILY_PASSWORD) {
+      sessionStorage.setItem(FAMILY_UNLOCKED_KEY, '1');
+      document.getElementById('family-lock').style.display = 'none';
+      // ホーム画面を明示的に表示
+      document.getElementById('page-home').classList.add('active');
+      try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
+    } else {
+      document.getElementById('family-pw-error').textContent = 'パスワードが違います';
+      document.getElementById('family-pw-input').value = '';
+      document.getElementById('family-pw-input').focus();
+    }
+  } catch(e) {
+    console.error('checkFamilyPw error:', e);
+    alert('エラーが発生しました: ' + e.message);
   }
 }
 
 // INIT - 認証チェック
 if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
   document.getElementById('family-lock').style.display = 'none';
-  setupFirebaseListeners();
+  document.getElementById('page-home').classList.add('active');
+  try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
 } else {
   document.getElementById('family-lock').style.display = 'flex';
   setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
