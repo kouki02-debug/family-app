@@ -929,6 +929,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -946,6 +947,8 @@ function checkFamilyPw() {
       document.getElementById('family-lock').style.display = 'none';
       document.getElementById('page-home').classList.add('active');
       try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
+      try { setupPushListener(); } catch(e) { console.error('Push listener error:', e); }
+      initFCM();
     } else {
       document.getElementById('family-pw-error').textContent = 'パスワードが違います';
       document.getElementById('family-pw-input').value = '';
@@ -2480,23 +2483,126 @@ function requestAllNotificationPermission() {
 }
 
 // ============================================================
-// Alexa連携（配膳完了アナウンス）
+// FCM プッシュ通知
+// ============================================================
+const VAPID_KEY = 'BOmEtMynJcXeGDQaXKf-ei9bCVf-hIZIuUA24PTi4NDte6vPlQeRvtjsbjm5d0t071Kzyfc9gyCnnPRessaKrA4';
+const FB_FCM_TOKENS = `${FB_ROOT}/fcm_tokens`;
+let _messaging = null;
+let _fcmToken = null;
+
+async function initFCM() {
+  try {
+    if (!('serviceWorker' in navigator)) return;
+
+    // ServiceWorker登録
+    const reg = await navigator.serviceWorker.register('/family-app/sw.js');
+
+    _messaging = firebase.messaging();
+    _messaging.useServiceWorker(reg);
+
+    // 通知許可 & トークン取得
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    _fcmToken = await _messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (_fcmToken) {
+      // デバイストークンをFirebaseに保存（端末識別子付き）
+      const deviceId = localStorage.getItem('fam_device_id') || (() => {
+        const id = Math.random().toString(36).slice(2);
+        localStorage.setItem('fam_device_id', id);
+        return id;
+      })();
+      await db.ref(`${FB_FCM_TOKENS}/${deviceId}`).set({
+        token: _fcmToken,
+        updatedAt: Date.now(),
+        ua: navigator.userAgent.slice(0, 100)
+      });
+      console.log('FCM token saved:', deviceId);
+    }
+
+    // フォアグラウンド通知受信
+    _messaging.onMessage(payload => {
+      const { title, body } = payload.notification || {};
+      showToast(`${title}　${body}`);
+      // フォアグラウンドでも通知バナーを出す
+      if (Notification.permission === 'granted') {
+        new Notification(title || '🏠 家族のページ', {
+          body: body || '',
+          icon: '/family-app/icon.png',
+          tag: payload.data?.tag || 'family-msg'
+        });
+      }
+    });
+
+  } catch(e) {
+    console.error('FCM init error:', e);
+  }
+}
+
+// 全デバイスにFCM通知を送信（Firebase Functions不使用・直接DB経由）
+// ※ 実際の送信はFirebase→FCM HTTP APIをCloud Functions経由が理想だが、
+//    ここではFirebase RTDBへの書き込みをトリガーとしてServiceWorkerで受信する簡易版
+async function sendPushToAll(title, body, tag) {
+  // RTDBに通知キューとして書き込む（全端末のServiceWorkerがポーリング）
+  await db.ref(`${FB_ROOT}/push_queue`).push({
+    title, body, tag,
+    ts: Date.now(),
+    sentBy: myName || '管理者'
+  });
+}
+
+// ServiceWorkerからのプッシュをRTDBで監視（全端末で受信）
+function setupPushListener() {
+  db.ref(`${FB_ROOT}/push_queue`).limitToLast(1).on('child_added', snap => {
+    const data = snap.val();
+    if (!data) return;
+    // 5秒以内の通知のみ処理（古いものは無視）
+    if (Date.now() - data.ts > 5000) return;
+
+    // フォアグラウンド通知
+    showToast(`${data.title}　${data.body}`);
+    if (Notification.permission === 'granted') {
+      new Notification(data.title, {
+        body: data.body,
+        icon: '/family-app/icon.png',
+        tag: data.tag || 'family-push'
+      });
+    }
+  });
+}
+
+// ============================================================
+// 配膳完了アナウンス（Alexa → プッシュ通知）
 // ============================================================
 const FB_ALEXA = `${FB_ROOT}/alexa_announce`;
 
-function alexaAnnounce(meal) {
+async function alexaAnnounce(meal) {
   const labels = { morning: '朝食', lunch: '昼食', dinner: '夕食' };
-  const label = labels[meal] || meal;
-  const ts = Date.now();
+  const emojis = { morning: '🌅', lunch: '☀️', dinner: '🌙' };
+  const label = labels[meal];
+  const emoji = emojis[meal];
 
-  db.ref(`${FB_ALEXA}/${meal}`).set({ ts, label, date: toDateStr(new Date()) })
-    .then(() => {
-      const el = document.getElementById('alexa-status');
-      el.style.display = 'block';
-      el.textContent = `✅ ${label}の配膳完了をFirebaseに送信しました（${new Date().toLocaleTimeString('ja-JP')}）`;
-      setTimeout(() => { el.style.display = 'none'; }, 5000);
-    })
-    .catch(() => showToast('送信に失敗しました'));
+  try {
+    // FirebaseにAlexaフラグ書き込み
+    await db.ref(`${FB_ALEXA}/${meal}`).set({
+      ts: Date.now(), label, date: toDateStr(new Date())
+    });
+
+    // 全端末にプッシュ通知
+    await sendPushToAll(
+      `${emoji} ${label}の準備ができました`,
+      'お食事をどうぞ！',
+      `meal-${meal}`
+    );
+
+    const el = document.getElementById('alexa-status');
+    el.style.display = 'block';
+    el.textContent = `✅ ${label}の配膳完了通知を送信しました（${new Date().toLocaleTimeString('ja-JP')}）`;
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+  } catch(e) {
+    showToast('送信に失敗しました');
+    console.error(e);
+  }
 }
 
 // INIT - 認証チェック
@@ -2504,6 +2610,8 @@ if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
   document.getElementById('family-lock').style.display = 'none';
   document.getElementById('page-home').classList.add('active');
   try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
+  try { setupPushListener(); } catch(e) { console.error('Push listener error:', e); }
+  initFCM();
 } else {
   document.getElementById('family-lock').style.display = 'flex';
   setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
