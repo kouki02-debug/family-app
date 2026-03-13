@@ -94,7 +94,9 @@
   .app-card:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
   .app-card-icon { font-size: 2.4rem; }
   .app-card-label { font-family: 'Zen Maru Gothic', sans-serif; font-size: 0.9rem; color: var(--deep); font-weight: 700; text-align: center; }
-  .app-card-desc { font-size: 0.75rem; color: var(--muted); text-align: center; }
+  .app-card-soon { opacity: 0.45; cursor: default; pointer-events: none; position: relative; }
+  .app-card-soon:hover { transform: none !important; box-shadow: none !important; border-color: var(--warm) !important; }
+  .soon-badge { font-size: 0.65rem; color: var(--muted); background: var(--warm); border-radius: 20px; padding: 2px 8px; letter-spacing: 0.05em; margin-top: 2px; }
 
   /* ===== BULLETIN BOARD ===== */
   .post-form {
@@ -324,7 +326,7 @@
   .admin-lock button { padding:10px 24px; background:var(--amber); color:white; border:none; border-radius:10px; font-family:'Zen Maru Gothic',sans-serif; cursor:pointer; }
 
   /* ===== ADMIN MODAL ===== */
-  #admin-modal { display:none; position:fixed; inset:0; background:rgba(74,44,26,0.7); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px); }
+  #admin-modal { display:none; position:fixed; inset:0; background:rgba(74,44,26,0.7); align-items:center; justify-content:center; z-index:10000; backdrop-filter:blur(4px); }
   #admin-modal.open { display:flex; }
   .modal-box { background:var(--cream); border-radius:20px; padding:32px 28px; width:90%; max-width:320px; text-align:center; box-shadow:0 20px 60px rgba(74,44,26,0.4); }
   .modal-box h2 { font-family:'Zen Maru Gothic',sans-serif; font-size:1.2rem; color:var(--deep); margin-bottom:6px; }
@@ -435,7 +437,7 @@
 <body>
 
 <!-- 家族用ロック画面 -->
-<div id="family-lock" style="display:none;position:fixed;inset:0;background:var(--deep);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+<div id="family-lock" style="position:fixed;inset:0;background:var(--deep);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
   <div style="background:var(--cream);border-radius:24px;padding:40px 32px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
     <div style="font-size:3rem;margin-bottom:12px">🏠</div>
     <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;color:var(--deep);margin-bottom:8px">家族のページ</h2>
@@ -510,9 +512,15 @@
         <span class="app-card-label">会社カレンダー</span>
         <span class="app-card-desc">フジパン(株)</span>
       </div>
+      <div class="app-card app-card-soon">
+        <span class="app-card-icon">📦</span>
+        <span class="app-card-label">在庫管理</span>
+        <span class="app-card-desc">近日公開</span>
+        <span class="soon-badge">Coming Soon</span>
+      </div>
     </div>
     <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
-      <span>ver 1.7　</span><span>更新日：2026年3月12日</span>
+      <span>ver 1.9　</span><span>更新日：2026年3月13日</span>
     </div>
   </div>
 </div>
@@ -771,6 +779,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -794,8 +803,26 @@ if (!firebase.apps.length) {
   });
 }
 const db = firebase.database();
+const storage = firebase.storage();
 
-// ============================================================
+// Firebase Storage アップロード
+async function uploadFileToStorage(file, path) {
+  const ref = storage.ref(path);
+  await ref.put(file);
+  return await ref.getDownloadURL();
+}
+
+async function uploadDataUrlToStorage(dataUrl, path) {
+  const ref = storage.ref(path);
+  await ref.putString(dataUrl, 'data_url');
+  return await ref.getDownloadURL();
+}
+
+async function deleteFileFromStorage(url) {
+  try {
+    await storage.refFromURL(url).delete();
+  } catch(e) { console.warn('Storage削除エラー', e); }
+}
 // 状態変数（Firebaseリスナーより前に宣言）
 // ============================================================
 let isAdmin = false;
@@ -1221,18 +1248,48 @@ async function convertPdfToImages() {
   }
 }
 
-function submitPost() {
+async function submitPost() {
   const title = document.getElementById('post-title').value.trim();
   const body  = document.getElementById('post-body').value.trim();
   if (!title) { alert('タイトルを入力してください'); return; }
+
+  // ボタンを無効化
+  const submitBtn = document.querySelector('#post-form .save-btn');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'アップロード中…'; }
+
   const t = new Date();
   const dateStr = `${t.getFullYear()}年${t.getMonth()+1}月${t.getDate()}日`;
-  // Firebaseにはテキストのみ保存
-  const postData = { title, body, date: dateStr, pdfName: selectedPdfName || '' };
-  const newId = fbAddPost(postData);
-  // 画像はlocalStorageに保存
-  if (selectedImages.length > 0) saveLocalImage(newId, selectedImages);
-  closePostForm();
+  const postId = db.ref(FB_POSTS).push().key;
+
+  try {
+    // 画像をStorageにアップロード
+    let imageUrls = [];
+    for (let i = 0; i < selectedImages.length; i++) {
+      const img = selectedImages[i];
+      const path = `posts/${postId}/images/${Date.now()}_${i}_${img.name}`;
+      const url = await uploadDataUrlToStorage(img.dataUrl, path);
+      imageUrls.push({ name: img.name, url });
+    }
+
+    // PDFをStorageにアップロード
+    let pdfUrl = '';
+    if (selectedPdfData && selectedPdfName) {
+      const path = `posts/${postId}/pdf/${selectedPdfName}`;
+      pdfUrl = await uploadDataUrlToStorage(selectedPdfData, path);
+    }
+
+    // FirebaseDBに保存
+    const postData = { title, body, date: dateStr, pdfName: selectedPdfName || '', pdfUrl, imageUrls };
+    await db.ref(`${FB_POSTS}/${postId}`).set(postData);
+
+    closePostForm();
+    showToast('投稿しました');
+  } catch(e) {
+    console.error(e);
+    alert('アップロードに失敗しました。\n' + e.message);
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '投稿する'; }
+  }
 }
 function getPosts() { return _posts; }
 function savePosts(p) {} // Firebase経由のみ
@@ -1272,20 +1329,19 @@ function renderPosts() {
       body.appendChild(txt);
     }
 
-    // PDF（個別削除ボタン付き）
-    if (p.pdfData) {
+    // PDF
+    if (p.pdfUrl) {
       const wrap = document.createElement('div');
       wrap.className = 'pdf-viewer-wrap';
       wrap.innerHTML = `<div class="pdf-viewer-label">📄 ${escHtml(p.pdfName||'PDF')}</div>`;
       const iframe = document.createElement('iframe');
       iframe.className = 'pdf-iframe';
-      iframe.src = p.pdfData + '#toolbar=0';
+      iframe.src = p.pdfUrl + '#toolbar=0';
       const dlLink = document.createElement('a');
       dlLink.className = 'pdf-open-link';
-      dlLink.href = p.pdfData;
-      dlLink.download = p.pdfName || 'document.pdf';
+      dlLink.href = p.pdfUrl;
+      dlLink.target = '_blank';
       dlLink.textContent = '⬇ PDFをダウンロード';
-      // 管理者用削除バー
       const delBar = document.createElement('div');
       delBar.className = 'pdf-del-bar';
       delBar.innerHTML = '<span>🗑 このPDFを削除</span>';
@@ -1297,25 +1353,35 @@ function renderPosts() {
       wrap.appendChild(dlLink);
       wrap.appendChild(delBar);
       body.appendChild(wrap);
+    } else if (p.pdfData) {
+      // 旧形式（localStorageのbase64）後方互換
+      const wrap = document.createElement('div');
+      wrap.className = 'pdf-viewer-wrap';
+      wrap.innerHTML = `<div class="pdf-viewer-label">📄 ${escHtml(p.pdfName||'PDF')}</div>`;
+      const iframe = document.createElement('iframe');
+      iframe.className = 'pdf-iframe';
+      iframe.src = p.pdfData + '#toolbar=0';
+      wrap.appendChild(iframe);
+      body.appendChild(wrap);
     }
 
-    // Images（1枚ずつ個別削除ボタン付き）
-    if (p.images && p.images.length > 0) {
+    // Images
+    const imgs = p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls : (p.images || []);
+    if (imgs.length > 0) {
       const imgWrap = document.createElement('div');
       imgWrap.className = 'img-viewer-wrap';
-      imgWrap.innerHTML = `<div class="img-viewer-label">🖼️ 画像 ${p.images.length}枚${isAdmin ? '　<span style="font-size:0.72rem;color:var(--red)">（各画像右上の✕で個別削除）</span>' : ''}</div>`;
+      imgWrap.innerHTML = `<div class="img-viewer-label">🖼️ 画像 ${imgs.length}枚${isAdmin ? '　<span style="font-size:0.72rem;color:var(--red)">（各画像右上の✕で個別削除）</span>' : ''}</div>`;
       const grid = document.createElement('div');
-      grid.className = 'post-images-grid ' + (p.images.length === 1 ? 'single' : 'multi');
-      p.images.forEach((img, i) => {
+      grid.className = 'post-images-grid ' + (imgs.length === 1 ? 'single' : 'multi');
+      imgs.forEach((img, i) => {
         const wrap = document.createElement('div');
         wrap.className = 'img-thumb-wrap';
         const el = document.createElement('img');
         el.className = 'post-img';
-        el.src = img.dataUrl;
+        el.src = img.url || img.dataUrl; // Storage URL or legacy dataUrl
         el.alt = img.name || '画像';
         el.loading = 'lazy';
         el.addEventListener('click', () => openLightbox(p.id, i));
-        // 個別削除ボタン
         const imgDel = document.createElement('button');
         imgDel.className = 'attach-del-btn';
         imgDel.textContent = '✕';
@@ -1336,21 +1402,35 @@ function renderPosts() {
 
 function deletePost(id) {
   if (!confirm('この投稿を削除しますか？')) return;
+  // Storageファイルも削除
+  const post = _posts.find(p => p.id === id);
+  if (post) {
+    if (post.pdfUrl) deleteFileFromStorage(post.pdfUrl);
+    if (post.imageUrls) post.imageUrls.forEach(img => deleteFileFromStorage(img.url));
+  }
   fbDeletePost(id);
-  saveLocalImage(id, null); // 画像も削除
+  saveLocalImage(id, null);
 }
 
-function deletePostFile(postId, type, imgIndex) {
+async function deletePostFile(postId, type, imgIndex) {
   const label = type === 'pdf' ? 'このPDF' : 'この画像';
   if (!confirm(`${label}を削除しますか？（投稿本文は残ります）`)) return;
+  const post = _posts.find(p => p.id === postId);
   if (type === 'pdf') {
-    fbUpdatePost(postId, { pdfName: '' });
+    if (post && post.pdfUrl) await deleteFileFromStorage(post.pdfUrl);
+    fbUpdatePost(postId, { pdfName: '', pdfUrl: '' });
   } else if (type === 'image') {
-    deleteLocalImage(postId, imgIndex);
-    // ローカルキャッシュも更新して再描画
-    const all = getLocalImages();
-    _posts = _posts.map(p => p.id === postId ? {...p, images: all[postId]||null} : p);
-    renderPosts();
+    if (post && post.imageUrls && post.imageUrls[imgIndex]) {
+      await deleteFileFromStorage(post.imageUrls[imgIndex].url);
+      const newUrls = post.imageUrls.filter((_, i) => i !== imgIndex);
+      fbUpdatePost(postId, { imageUrls: newUrls });
+    } else {
+      // 旧形式
+      deleteLocalImage(postId, imgIndex);
+      const all = getLocalImages();
+      _posts = _posts.map(p => p.id === postId ? {...p, images: all[postId]||null} : p);
+      renderPosts();
+    }
   }
 }
 
@@ -1358,8 +1438,10 @@ function deletePostFile(postId, type, imgIndex) {
 function openLightbox(postId, imgIdx) {
   const posts = getPosts();
   const post = posts.find(p => p.id === postId);
-  if (!post || !post.images) return;
-  document.getElementById('lightbox-img').src = post.images[imgIdx].dataUrl;
+  if (!post) return;
+  const imgs = post.imageUrls && post.imageUrls.length > 0 ? post.imageUrls : (post.images || []);
+  if (!imgs.length) return;
+  document.getElementById('lightbox-img').src = imgs[imgIdx].url || imgs[imgIdx].dataUrl;
   document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox() {
