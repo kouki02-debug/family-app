@@ -932,6 +932,31 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
+// ============================================================
+// 家族パスワード認証（最初に定義）
+// ============================================================
+const FAMILY_PASSWORD = 'family2026';
+const FAMILY_UNLOCKED_KEY = 'fam_unlocked_v1';
+
+function checkFamilyPw() {
+  try {
+    const v = document.getElementById('family-pw-input').value;
+    if (v === FAMILY_PASSWORD) {
+      sessionStorage.setItem(FAMILY_UNLOCKED_KEY, '1');
+      document.getElementById('family-lock').style.display = 'none';
+      document.getElementById('page-home').classList.add('active');
+      try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
+    } else {
+      document.getElementById('family-pw-error').textContent = 'パスワードが違います';
+      document.getElementById('family-pw-input').value = '';
+      document.getElementById('family-pw-input').focus();
+    }
+  } catch(e) {
+    console.error('checkFamilyPw error:', e);
+    alert('エラーが発生しました: ' + e.message);
+  }
+}
+
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
@@ -1086,7 +1111,6 @@ function deleteLocalImage(postId, imgIdx) {
 // CONFIG
 // ============================================================
 const ADMIN_PASSWORD = '1022';
-const FAMILY_PASSWORD = 'family2026'; // 家族用パスワード（変更可）
 
 // localStorageキー（画像のみ残す）
 const POSTS_KEY  = 'fam_posts_v2';   // 移行用（使わなくなる）
@@ -2140,40 +2164,6 @@ function requestNotificationPermission() {
   requestAllNotificationPermission();
 }
 // ============================================================
-const FAMILY_UNLOCKED_KEY = 'fam_unlocked_v1';
-
-function checkFamilyPw() {
-  try {
-    const v = document.getElementById('family-pw-input').value;
-    if (v === FAMILY_PASSWORD) {
-      sessionStorage.setItem(FAMILY_UNLOCKED_KEY, '1');
-      document.getElementById('family-lock').style.display = 'none';
-      // ホーム画面を明示的に表示
-      document.getElementById('page-home').classList.add('active');
-      try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
-    } else {
-      document.getElementById('family-pw-error').textContent = 'パスワードが違います';
-      document.getElementById('family-pw-input').value = '';
-      document.getElementById('family-pw-input').focus();
-    }
-  } catch(e) {
-    console.error('checkFamilyPw error:', e);
-    alert('エラーが発生しました: ' + e.message);
-  }
-}
-
-// INIT - 認証チェック
-if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
-  document.getElementById('family-lock').style.display = 'none';
-  document.getElementById('page-home').classList.add('active');
-  try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
-} else {
-  document.getElementById('family-lock').style.display = 'flex';
-  setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
-}
-
-
-// ============================================================
 // 在庫管理（Firebase同期版）
 // ============================================================
 const FB_INVENTORY = `${FB_ROOT}/inventory`;
@@ -2509,5 +2499,15 @@ function alexaAnnounce(meal) {
     .catch(() => showToast('送信に失敗しました'));
 }
 
+// INIT - 認証チェック
+if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
+  document.getElementById('family-lock').style.display = 'none';
+  document.getElementById('page-home').classList.add('active');
+  try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
+} else {
+  document.getElementById('family-lock').style.display = 'flex';
+  setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
+}
+</script>
 </body>
 </html>
