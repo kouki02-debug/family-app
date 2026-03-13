@@ -429,6 +429,46 @@
   .rice-checkbox-label { display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--muted); cursor:pointer; user-select:none; }
   .rice-checkbox-label input[type=checkbox] { width:16px; height:16px; accent-color:var(--green); cursor:pointer; }
 
+  /* ===== 在庫管理 ===== */
+  @keyframes invScanLine { 0%,100%{top:8%}50%{top:82%} }
+  .inv-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .inv-stat-card{background:white;border-radius:12px;padding:12px 6px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+  .inv-stat-num{font-family:'Zen Maru Gothic',sans-serif;font-size:1.5rem;font-weight:700;color:var(--deep)}
+  .inv-stat-num.inv-red{color:var(--red)} .inv-stat-num.inv-yellow{color:#E8B84B}
+  .inv-stat-label{font-size:0.68rem;color:var(--muted);margin-top:3px}
+  .inv-filter-bar{display:flex;gap:7px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px}
+  .inv-filter-btn{padding:5px 12px;border-radius:20px;border:2px solid var(--warm);background:white;font-size:0.76rem;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:'Zen Maru Gothic',sans-serif;transition:all .15s;flex-shrink:0}
+  .inv-filter-btn.active{background:var(--amber);border-color:var(--amber);color:white}
+  .inv-print-btn{background:var(--warm);border:2px solid var(--amber);color:var(--amber);border-radius:10px;padding:6px 14px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;gap:6px;transition:all .2s}
+  .inv-print-btn:hover{background:var(--amber);color:white}
+  .inv-item-card{background:white;border-radius:12px;padding:11px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;border-left:4px solid transparent;animation:fadeUp .2s ease}
+  .inv-item-card.expired{border-left-color:var(--red)} .inv-item-card.soon{border-left-color:#E8B84B} .inv-item-card.ok{border-left-color:var(--green)}
+  .inv-item-emoji{font-size:1.8rem;flex-shrink:0}
+  .inv-item-info{flex:1;min-width:0}
+  .inv-item-name{font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inv-item-tags{display:flex;gap:5px;margin-top:3px;flex-wrap:wrap}
+  .inv-tag{font-size:0.68rem;padding:2px 7px;border-radius:20px}
+  .inv-tag-place{background:var(--warm);color:var(--brown)} .inv-tag-qty{background:#E8F4EA;color:var(--green)}
+  .inv-expiry{font-size:0.73rem;margin-top:3px}
+  .inv-expiry.ok{color:var(--green)} .inv-expiry.soon{color:#E8B84B;font-weight:700} .inv-expiry.expired{color:var(--red);font-weight:700}
+  .inv-item-actions{display:flex;flex-direction:column;gap:5px}
+  .inv-btn-use{background:var(--green);color:white;border:none;border-radius:8px;padding:5px 10px;font-size:0.73rem;cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;white-space:nowrap}
+  .inv-btn-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.95rem;padding:2px 6px;border-radius:6px}
+  .inv-btn-del:hover{color:var(--red);background:#FFE5E2}
+  .inv-scan-box{background:white;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+  .inv-scan-btn{width:100%;padding:13px;background:var(--amber);color:white;border:none;border-radius:12px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;transition:background .2s}
+  .inv-scan-btn.scanning{background:var(--red)}
+  .inv-add-form{background:white;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+  .inv-add-form h3{font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;color:var(--deep);margin-bottom:12px}
+  .inv-form-group{margin-bottom:10px}
+  .inv-form-label{font-size:0.76rem;color:var(--muted);margin-bottom:3px;display:block}
+  .inv-form-input,.inv-form-select{width:100%;padding:10px 12px;border:2px solid var(--warm);border-radius:10px;font-family:'Noto Sans JP',sans-serif;font-size:0.88rem;outline:none;color:var(--text);background:var(--cream)}
+  .inv-form-input:focus,.inv-form-select:focus{border-color:var(--amber)}
+  .inv-form-row{display:flex;gap:10px} .inv-form-row .inv-form-group{flex:1}
+  .inv-submit-btn{width:100%;padding:12px;background:var(--green);color:white;border:none;border-radius:12px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;cursor:pointer;margin-top:4px;transition:background .2s}
+  .inv-submit-btn:hover{background:#5A8060}
+  @media print{.inv-filter-bar,.inv-stats-row,.inv-print-btn,.inv-item-actions,#inv-tabs{display:none!important}#inv-section-scan,#inv-section-add{display:none!important}.inv-item-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}}
+
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:var(--warm); border-radius:4px; }
@@ -512,15 +552,14 @@
         <span class="app-card-label">会社カレンダー</span>
         <span class="app-card-desc">フジパン(株)</span>
       </div>
-      <div class="app-card app-card-soon">
+      <div class="app-card" onclick="goTo('inventory')">
         <span class="app-card-icon">📦</span>
         <span class="app-card-label">在庫管理</span>
-        <span class="app-card-desc">近日公開</span>
-        <span class="soon-badge">Coming Soon</span>
+        <span class="app-card-desc">食材・賞味期限</span>
       </div>
     </div>
     <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
-      <span>ver 1.9　</span><span>更新日：2026年3月13日</span>
+      <span>ver 2.0　</span><span>更新日：2026年3月13日</span>
     </div>
   </div>
 </div>
@@ -770,6 +809,227 @@
   </div>
 </div>
 
+<!-- INVENTORY PAGE -->
+<div class="page" id="page-inventory">
+  <!-- タブ -->
+  <div id="inv-tabs" style="position:fixed;bottom:0;left:0;right:0;display:none;background:var(--warm);border-top:2px solid var(--amber);z-index:50">
+    <button class="bnav-btn active" id="inv-tab-list" onclick="switchInvTab('list')">📋 一覧</button>
+    <button class="bnav-btn" id="inv-tab-scan" onclick="switchInvTab('scan')">📷 スキャン</button>
+    <button class="bnav-btn" id="inv-tab-add" onclick="switchInvTab('add')">＋ 手入力</button>
+  </div>
+
+  <!-- 一覧 -->
+  <div class="page-body" id="inv-section-list" style="padding-bottom:60px">
+    <div id="inv-alert-area"></div>
+    <div class="inv-stats-row">
+      <div class="inv-stat-card"><div class="inv-stat-num" id="inv-stat-total">0</div><div class="inv-stat-label">総アイテム</div></div>
+      <div class="inv-stat-card"><div class="inv-stat-num inv-yellow" id="inv-stat-soon">0</div><div class="inv-stat-label">期限3日以内</div></div>
+      <div class="inv-stat-card"><div class="inv-stat-num inv-red" id="inv-stat-expired">0</div><div class="inv-stat-label">期限切れ</div></div>
+    </div>
+    <div class="inv-filter-bar">
+      <button class="inv-filter-btn active" onclick="setInvFilter('all',this)">すべて</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('fridge',this)">🧊 冷蔵</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('freezer',this)">❄️ 冷凍</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('room',this)">🏠 常温</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('expired',this)">⚠️ 期限切れ</button>
+    </div>
+    <button class="inv-print-btn" onclick="printInvList()">🖨️ 印刷する</button>
+    <div id="inv-item-list"></div>
+  </div>
+
+  <!-- スキャン -->
+  <div class="page-body" id="inv-section-scan" style="display:none;padding-bottom:60px">
+    <div class="inv-scan-section">
+      <h3 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:12px">📷 バーコードをスキャン</h3>
+      <div id="inv-video-container" style="display:none;position:relative;width:100%;border-radius:12px;overflow:hidden;background:#111;aspect-ratio:4/3">
+        <video id="inv-qr-video" playsinline style="width:100%;height:100%;object-fit:cover;display:block"></video>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+          <div style="position:relative">
+            <div style="width:200px;height:120px;border:3px solid var(--amber);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,0.4)"></div>
+            <div id="inv-scan-line" style="position:absolute;left:0;right:0;height:2px;background:var(--amber);animation:invScanLine 2s ease-in-out infinite"></div>
+          </div>
+        </div>
+      </div>
+      <div id="inv-manual-barcode-area" style="display:none;gap:8px;margin-top:10px">
+        <input id="inv-manual-barcode-input" style="flex:1;padding:10px 14px;border:2px solid var(--warm);border-radius:10px;font-size:0.95rem;outline:none" placeholder="バーコード番号を手入力">
+        <button onclick="invSubmitManualBarcode()" style="padding:10px 16px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;cursor:pointer">決定</button>
+      </div>
+      <button class="inv-scan-btn" id="inv-scan-btn" onclick="invToggleScan()">
+        <span>📷</span><span id="inv-scan-btn-text">スキャン開始</span>
+      </button>
+      <div id="inv-barcode-result" style="display:none;margin-top:12px;padding:10px 14px;background:var(--cream);border-radius:10px;font-size:0.85rem;color:var(--muted)"></div>
+    </div>
+    <div class="inv-add-form" id="inv-scan-form" style="display:none">
+      <h3>📝 スキャン結果を登録</h3>
+      <div class="inv-form-row">
+        <div class="inv-form-group" style="max-width:80px">
+          <label class="inv-form-label">絵文字</label>
+          <input class="inv-form-input" id="inv-scan-emoji" placeholder="🥛" maxlength="4" style="text-align:center">
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">食材名 *</label>
+          <input class="inv-form-input" id="inv-scan-name" placeholder="例：牛乳" maxlength="20">
+        </div>
+      </div>
+      <div class="inv-form-row">
+        <div class="inv-form-group">
+          <label class="inv-form-label">賞味期限</label>
+          <input class="inv-form-input" id="inv-scan-expiry" type="date">
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">数量</label>
+          <input class="inv-form-input" id="inv-scan-qty" type="number" value="1" min="1" max="99">
+        </div>
+      </div>
+      <div class="inv-form-group">
+        <label class="inv-form-label">保管場所</label>
+        <select class="inv-form-select" id="inv-scan-place">
+          <option value="fridge">🧊 冷蔵庫</option>
+          <option value="freezer">❄️ 冷凍庫</option>
+          <option value="room">🏠 常温</option>
+        </select>
+      </div>
+      <button class="inv-submit-btn" onclick="invSaveScannedItem()">✅ 登録する</button>
+    </div>
+  </div>
+
+  <!-- 手入力 -->
+  <div class="page-body" id="inv-section-add" style="display:none;padding-bottom:60px">
+    <div class="inv-add-form">
+      <h3>✏️ 食材を手入力で追加</h3>
+      <div class="inv-form-row">
+        <div class="inv-form-group" style="max-width:80px">
+          <label class="inv-form-label">絵文字</label>
+          <input class="inv-form-input" id="inv-add-emoji" placeholder="🥦" maxlength="4" style="text-align:center">
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">食材名 *</label>
+          <input class="inv-form-input" id="inv-add-name" placeholder="例：ブロッコリー" maxlength="20">
+        </div>
+      </div>
+      <div class="inv-form-row">
+        <div class="inv-form-group">
+          <label class="inv-form-label">賞味期限</label>
+          <input class="inv-form-input" id="inv-add-expiry" type="date">
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">数量</label>
+          <input class="inv-form-input" id="inv-add-qty" type="number" value="1" min="1" max="99">
+        </div>
+      </div>
+      <div class="inv-form-group">
+        <label class="inv-form-label">保管場所</label>
+        <select class="inv-form-select" id="inv-add-place">
+          <option value="fridge">🧊 冷蔵庫</option>
+          <option value="freezer">❄️ 冷凍庫</option>
+          <option value="room">🏠 常温</option>
+        </select>
+      </div>
+      <div class="inv-form-group">
+        <label class="inv-form-label">メモ（省略可）</label>
+        <input class="inv-form-input" id="inv-add-note" placeholder="開封済み、など" maxlength="30">
+      </div>
+      <button class="inv-submit-btn" onclick="invAddItem()">＋ 追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY PAGE -->
+<div class="page" id="page-inventory">
+  <!-- 下部タブ -->
+  <div id="inv-tabs" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--warm);border-top:2px solid var(--amber);z-index:50;display:none;flex">
+    <button class="bnav-btn active" id="inv-tab-list" onclick="switchInvTab('list')">📋 一覧</button>
+    <button class="bnav-btn" id="inv-tab-scan" onclick="switchInvTab('scan')">📷 スキャン</button>
+    <button class="bnav-btn" id="inv-tab-add" onclick="switchInvTab('add')">✏️ 手入力</button>
+  </div>
+
+  <!-- 一覧 -->
+  <div class="page-body" id="inv-section-list" style="padding-bottom:64px">
+    <div id="inv-alert-area"></div>
+    <div class="inv-stats-row">
+      <div class="inv-stat-card"><div class="inv-stat-num" id="inv-stat-total">0</div><div class="inv-stat-label">総アイテム</div></div>
+      <div class="inv-stat-card"><div class="inv-stat-num inv-yellow" id="inv-stat-soon">0</div><div class="inv-stat-label">期限3日以内</div></div>
+      <div class="inv-stat-card"><div class="inv-stat-num inv-red" id="inv-stat-expired">0</div><div class="inv-stat-label">期限切れ</div></div>
+    </div>
+    <div class="inv-filter-bar">
+      <button class="inv-filter-btn active" onclick="setInvFilter('all',this)">すべて</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('fridge',this)">🧊 冷蔵</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('freezer',this)">❄️ 冷凍</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('room',this)">🏠 常温</button>
+      <button class="inv-filter-btn" onclick="setInvFilter('expired',this)">⚠️ 期限切れ</button>
+    </div>
+    <button class="inv-print-btn" onclick="window.print()">🖨️ 印刷する</button>
+    <div id="inv-item-list"></div>
+  </div>
+
+  <!-- スキャン -->
+  <div class="page-body" id="inv-section-scan" style="display:none;padding-bottom:64px">
+    <div class="inv-scan-box">
+      <h3 style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;color:var(--deep);margin-bottom:12px">📷 バーコードをスキャン</h3>
+      <div id="inv-video-container" style="display:none;position:relative;width:100%;border-radius:12px;overflow:hidden;background:#111;aspect-ratio:4/3">
+        <video id="inv-qr-video" playsinline style="width:100%;height:100%;object-fit:cover;display:block"></video>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+          <div style="position:relative;width:200px;height:120px">
+            <div style="position:absolute;inset:0;border:3px solid var(--amber);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,0.45)"></div>
+            <div style="position:absolute;left:0;right:0;height:2px;background:var(--amber);animation:invScanLine 2s ease-in-out infinite"></div>
+          </div>
+        </div>
+      </div>
+      <div id="inv-manual-area" style="display:none;gap:8px;margin-top:10px">
+        <input id="inv-manual-input" class="inv-form-input" placeholder="バーコード番号を手入力" style="flex:1">
+        <button onclick="invSubmitManual()" style="padding:10px 14px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;cursor:pointer;flex-shrink:0">決定</button>
+      </div>
+      <button class="inv-scan-btn" id="inv-scan-btn" onclick="invToggleScan()">
+        <span>📷</span><span id="inv-scan-btn-text">スキャン開始</span>
+      </button>
+      <div id="inv-barcode-result" style="display:none;margin-top:10px;padding:10px 12px;background:var(--cream);border-radius:10px;font-size:0.83rem;color:var(--muted)"></div>
+    </div>
+    <div class="inv-add-form" id="inv-scan-form" style="display:none">
+      <h3>📝 スキャン結果を登録</h3>
+      <div class="inv-form-row">
+        <div class="inv-form-group" style="max-width:76px"><label class="inv-form-label">絵文字</label><input class="inv-form-input" id="inv-s-emoji" placeholder="🥛" maxlength="4" style="text-align:center"></div>
+        <div class="inv-form-group"><label class="inv-form-label">食材名 *</label><input class="inv-form-input" id="inv-s-name" placeholder="例：牛乳" maxlength="20"></div>
+      </div>
+      <div class="inv-form-row">
+        <div class="inv-form-group"><label class="inv-form-label">賞味期限</label><input class="inv-form-input" id="inv-s-expiry" type="date"></div>
+        <div class="inv-form-group"><label class="inv-form-label">数量</label><input class="inv-form-input" id="inv-s-qty" type="number" value="1" min="1" max="99"></div>
+      </div>
+      <div class="inv-form-group"><label class="inv-form-label">保管場所</label>
+        <select class="inv-form-select" id="inv-s-place">
+          <option value="fridge">🧊 冷蔵庫</option>
+          <option value="freezer">❄️ 冷凍庫</option>
+          <option value="room">🏠 常温</option>
+        </select>
+      </div>
+      <button class="inv-submit-btn" onclick="invSaveScanned()">✅ 登録する</button>
+    </div>
+  </div>
+
+  <!-- 手入力 -->
+  <div class="page-body" id="inv-section-add" style="display:none;padding-bottom:64px">
+    <div class="inv-add-form">
+      <h3>✏️ 食材を手入力で追加</h3>
+      <div class="inv-form-row">
+        <div class="inv-form-group" style="max-width:76px"><label class="inv-form-label">絵文字</label><input class="inv-form-input" id="inv-a-emoji" placeholder="🥦" maxlength="4" style="text-align:center"></div>
+        <div class="inv-form-group"><label class="inv-form-label">食材名 *</label><input class="inv-form-input" id="inv-a-name" placeholder="例：ブロッコリー" maxlength="20"></div>
+      </div>
+      <div class="inv-form-row">
+        <div class="inv-form-group"><label class="inv-form-label">賞味期限</label><input class="inv-form-input" id="inv-a-expiry" type="date"></div>
+        <div class="inv-form-group"><label class="inv-form-label">数量</label><input class="inv-form-input" id="inv-a-qty" type="number" value="1" min="1" max="99"></div>
+      </div>
+      <div class="inv-form-group"><label class="inv-form-label">保管場所</label>
+        <select class="inv-form-select" id="inv-a-place">
+          <option value="fridge">🧊 冷蔵庫</option>
+          <option value="freezer">❄️ 冷凍庫</option>
+          <option value="room">🏠 常温</option>
+        </select>
+      </div>
+      <div class="inv-form-group"><label class="inv-form-label">メモ（省略可）</label><input class="inv-form-input" id="inv-a-note" placeholder="開封済み、など" maxlength="30"></div>
+      <button class="inv-submit-btn" onclick="invAddItem()">＋ 追加する</button>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div id="lightbox">
   <button id="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -864,8 +1124,8 @@ function setupFirebaseListeners() {
   // 掲示板（テキストのみ、画像はlocalStorage）
   db.ref(FB_POSTS).on('value', snap => {
     const val = snap.val();
-    _posts = val ? Object.values(val).sort((a,b) => (b.ts||0)-(a.ts||0)) : [];
-    // localStorageの画像データをマージ
+    // idをキーから確実にセット
+    _posts = val ? Object.entries(val).map(([key, p]) => ({...p, id: key})).sort((a,b) => (b.ts||0)-(a.ts||0)) : [];
     const localImgs = getLocalImages();
     _posts = _posts.map(p => ({...p, images: localImgs[p.id]||null, pdfData: null}));
     if (currentPage === 'bulletin' && currentSection === 'board') renderPosts();
@@ -874,7 +1134,7 @@ function setupFirebaseListeners() {
   // カレンダー
   db.ref(FB_EVENTS).on('value', snap => {
     const val = snap.val();
-    _events = val ? Object.values(val) : [];
+    _events = val ? Object.entries(val).map(([key, e]) => ({...e, id: key})) : [];
     if (currentPage === 'bulletin' && currentSection === 'calendar') { renderCalendar(); renderEvents(); }
   });
 
@@ -888,8 +1148,7 @@ function setupFirebaseListeners() {
   let _prevOrderCount = null;
   db.ref(FB_ORDERS).on('value', snap => {
     const val = snap.val();
-    const newOrders = val ? Object.values(val) : [];
-    // 管理画面が開いていて、初回以降に注文が増えたら通知
+    const newOrders = val ? Object.entries(val).map(([key, o]) => ({...o, id: key})) : [];
     if (_prevOrderCount !== null && newOrders.length > _prevOrderCount && currentPage === 'meal' && currentMealTab === 'admin' && isAdmin) {
       const latest = newOrders.sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
       playOrderSound();
@@ -903,14 +1162,14 @@ function setupFirebaseListeners() {
   // ケアサービス
   db.ref(FB_CARE_SVC).on('value', snap => {
     const val = snap.val();
-    _careSvc = val ? Object.values(val) : null;
+    _careSvc = val ? Object.entries(val).map(([key, s]) => ({...s, id: key})) : null;
     if (currentPage === 'care') renderCareServiceGrid();
   });
 
   // ケア予約
   db.ref(FB_CARE_BK).on('value', snap => {
     const val = snap.val();
-    _careBk = val ? Object.values(val) : [];
+    _careBk = val ? Object.entries(val).map(([key, b]) => ({...b, id: key})) : [];
     if (currentPage === 'care') { renderCareHero(); if(currentCareTab==='history') renderCareHistory(); if(currentCareTab==='admin'&&isAdmin) renderCareAdminContent(); }
   });
 }
@@ -1008,10 +1267,12 @@ function fbDeleteCareBooking(id) { db.ref(`${FB_CARE_BK}/${id}`).remove(); }
 // ============================================================
 function goHome() {
   showPage('home');
+  invStopScan();
   document.getElementById('back-btn').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'none';
   document.getElementById('meal-tabs').style.display = 'none';
   document.getElementById('care-tabs').style.display = 'none';
+  document.getElementById('inv-tabs').style.display = 'none';
   document.getElementById('header-icon').textContent = '🏠';
   document.getElementById('header-title').textContent = '家族のページ';
 }
@@ -1057,12 +1318,20 @@ function goTo(dest) {
     renderCareServiceGrid();
     renderCareHero();
     updateCareAdminUI();
+  } else if (dest === 'inventory') {
+    showPage('inventory');
+    document.getElementById('bottom-nav').style.display = 'none';
+    document.getElementById('meal-tabs').style.display = 'none';
+    document.getElementById('care-tabs').style.display = 'none';
+    document.getElementById('inv-tabs').style.display = 'flex';
+    document.getElementById('header-icon').textContent = '📦';
+    document.getElementById('header-title').textContent = '在庫管理';
+    document.getElementById('back-btn').style.display = 'block';
+    switchInvTab('list');
   }
 }
-
-function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home' };
+  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home', inventory: 'page-inventory' };
   document.getElementById(idMap[name] || 'page-home').classList.add('active');
   currentPage = name;
 }
@@ -1073,6 +1342,7 @@ function switchSection(sec) {
   document.getElementById('section-calendar').style.display = sec === 'calendar' ? 'block' : 'none';
   document.getElementById('bnav-board').classList.toggle('active', sec === 'board');
   document.getElementById('bnav-calendar').classList.toggle('active', sec === 'calendar');
+  if (sec === 'board') renderPosts();
   if (sec === 'calendar') { renderCalendar(); renderEvents(); }
 }
 
@@ -1254,7 +1524,7 @@ async function submitPost() {
   if (!title) { alert('タイトルを入力してください'); return; }
 
   // ボタンを無効化
-  const submitBtn = document.querySelector('#post-form .save-btn');
+  const submitBtn = document.querySelector('.post-submit');
   if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'アップロード中…'; }
 
   const t = new Date();
@@ -1262,33 +1532,48 @@ async function submitPost() {
   const postId = db.ref(FB_POSTS).push().key;
 
   try {
-    // 画像をStorageにアップロード
+    // 画像をStorageにアップロード（失敗しても続行）
     let imageUrls = [];
     for (let i = 0; i < selectedImages.length; i++) {
-      const img = selectedImages[i];
-      const path = `posts/${postId}/images/${Date.now()}_${i}_${img.name}`;
-      const url = await uploadDataUrlToStorage(img.dataUrl, path);
-      imageUrls.push({ name: img.name, url });
+      try {
+        const img = selectedImages[i];
+        const path = `posts/${postId}/images/${Date.now()}_${i}_${img.name}`;
+        const url = await uploadDataUrlToStorage(img.dataUrl, path);
+        imageUrls.push({ name: img.name, url });
+      } catch(imgErr) {
+        console.error('画像アップロード失敗:', imgErr);
+      }
     }
 
-    // PDFをStorageにアップロード
+    // PDFをStorageにアップロード（失敗しても続行）
     let pdfUrl = '';
     if (selectedPdfData && selectedPdfName) {
-      const path = `posts/${postId}/pdf/${selectedPdfName}`;
-      pdfUrl = await uploadDataUrlToStorage(selectedPdfData, path);
+      try {
+        const path = `posts/${postId}/pdf/${selectedPdfName}`;
+        pdfUrl = await uploadDataUrlToStorage(selectedPdfData, path);
+      } catch(pdfErr) {
+        console.error('PDFアップロード失敗:', pdfErr);
+      }
     }
 
-    // FirebaseDBに保存
-    const postData = { title, body, date: dateStr, pdfName: selectedPdfName || '', pdfUrl, imageUrls };
+    // FirebaseDBに投稿データを保存（テキストは必ず保存）
+    const postData = {
+      title,
+      body: body || '',
+      date: dateStr,
+      pdfName: selectedPdfName || '',
+      pdfUrl: pdfUrl || '',
+      imageUrls: imageUrls || []
+    };
     await db.ref(`${FB_POSTS}/${postId}`).set(postData);
 
     closePostForm();
     showToast('投稿しました');
   } catch(e) {
-    console.error(e);
-    alert('アップロードに失敗しました。\n' + e.message);
+    console.error('投稿エラー:', e);
+    alert('投稿に失敗しました。\n' + (e.message || e));
   } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '投稿する'; }
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '掲示板に投稿'; }
   }
 }
 function getPosts() { return _posts; }
@@ -1986,6 +2271,273 @@ if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
 } else {
   document.getElementById('family-lock').style.display = 'flex';
   setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
+}
+
+// ============================================================
+// 在庫管理
+// ============================================================
+const INV_KEY = 'fam_inventory_v1';
+let invFilter = 'all';
+let invScanning = false;
+let invScanStream = null;
+let invScanFrame = null;
+let invCurrentTab = 'list';
+
+const INV_PLACE = { fridge: '🧊 冷蔵', freezer: '❄️ 冷凍', room: '🏠 常温' };
+
+function invGetItems() {
+  try { return JSON.parse(localStorage.getItem(INV_KEY)) || []; } catch { return []; }
+}
+function invSaveItems(items) {
+  localStorage.setItem(INV_KEY, JSON.stringify(items));
+}
+
+function switchInvTab(tab) {
+  invCurrentTab = tab;
+  ['list','scan','add'].forEach(t => {
+    document.getElementById('inv-section-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('inv-tab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'list') renderInvList();
+  if (tab !== 'scan') invStopScan();
+}
+
+function setInvFilter(f, btn) {
+  invFilter = f;
+  document.querySelectorAll('.inv-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInvList();
+}
+
+function invExpiryStatus(dateStr) {
+  if (!dateStr) return 'ok';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr + 'T00:00:00');
+  const diff = Math.floor((d - today) / 86400000);
+  if (diff < 0) return 'expired';
+  if (diff <= 3) return 'soon';
+  return 'ok';
+}
+
+function invExpiryLabel(dateStr, status) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = `${d.getMonth()+1}月${d.getDate()}日まで`;
+  if (status === 'expired') return `⚠️ 期限切れ（${label.replace('まで','過ぎ')}）`;
+  if (status === 'soon') return `⏰ あと少し（${label}）`;
+  return `✅ ${label}`;
+}
+
+function renderInvList() {
+  let items = invGetItems();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // 統計
+  const expiredCount = items.filter(i => invExpiryStatus(i.expiry) === 'expired').length;
+  const soonCount = items.filter(i => invExpiryStatus(i.expiry) === 'soon').length;
+  document.getElementById('inv-stat-total').textContent = items.length;
+  document.getElementById('inv-stat-soon').textContent = soonCount;
+  document.getElementById('inv-stat-expired').textContent = expiredCount;
+
+  // アラート
+  const alertArea = document.getElementById('inv-alert-area');
+  alertArea.innerHTML = '';
+  if (expiredCount > 0) alertArea.innerHTML += `<div style="background:#FFE5E2;border:2px solid var(--red);border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:0.83rem;color:var(--red)">⚠️ 期限切れの食材が${expiredCount}件あります</div>`;
+  if (soonCount > 0) alertArea.innerHTML += `<div style="background:#FFF3CD;border:2px solid #E8B84B;border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:0.83rem;color:#9A7000">⏰ 期限が3日以内の食材が${soonCount}件あります</div>`;
+
+  // フィルター
+  if (invFilter === 'expired') items = items.filter(i => invExpiryStatus(i.expiry) === 'expired');
+  else if (invFilter !== 'all') items = items.filter(i => i.place === invFilter);
+
+  // ソート（期限切れ→近い順→期限なし）
+  items.sort((a, b) => {
+    const sa = invExpiryStatus(a.expiry), sb = invExpiryStatus(b.expiry);
+    const order = { expired: 0, soon: 1, ok: 2 };
+    if (order[sa] !== order[sb]) return order[sa] - order[sb];
+    if (a.expiry && b.expiry) return a.expiry.localeCompare(b.expiry);
+    return 0;
+  });
+
+  const list = document.getElementById('inv-item-list');
+  if (items.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:0.88rem">📦 食材がありません</div>';
+    return;
+  }
+  list.innerHTML = items.map(item => {
+    const status = invExpiryStatus(item.expiry);
+    const expiryLabel = invExpiryLabel(item.expiry, status);
+    return `<div class="inv-item-card ${status}">
+      <div class="inv-item-emoji">${item.emoji || '📦'}</div>
+      <div class="inv-item-info">
+        <div class="inv-item-name">${escHtml(item.name)}</div>
+        <div class="inv-item-tags">
+          <span class="inv-tag inv-tag-place">${INV_PLACE[item.place] || '🏠 常温'}</span>
+          <span class="inv-tag inv-tag-qty">×${item.qty || 1}</span>
+          ${item.note ? `<span class="inv-tag" style="background:#F0EBE3;color:var(--muted)">${escHtml(item.note)}</span>` : ''}
+        </div>
+        ${expiryLabel ? `<div class="inv-expiry ${status}">${expiryLabel}</div>` : ''}
+      </div>
+      <div class="inv-item-actions">
+        <button class="inv-btn-use" onclick="invUseItem('${item.id}')">使用済み</button>
+        <button class="inv-btn-del" onclick="invDeleteItem('${item.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function invUseItem(id) {
+  let items = invGetItems();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  if (item.qty > 1) {
+    item.qty--;
+    invSaveItems(items);
+  } else {
+    if (!confirm(`「${item.name}」を在庫から削除しますか？`)) return;
+    invSaveItems(items.filter(i => i.id !== id));
+  }
+  renderInvList();
+}
+
+function invDeleteItem(id) {
+  if (!confirm('この食材を削除しますか？')) return;
+  invSaveItems(invGetItems().filter(i => i.id !== id));
+  renderInvList();
+}
+
+function invAddItem() {
+  const name = document.getElementById('inv-a-name').value.trim();
+  if (!name) { alert('食材名を入力してください'); return; }
+  const item = {
+    id: Date.now().toString(),
+    emoji: document.getElementById('inv-a-emoji').value.trim() || '📦',
+    name,
+    expiry: document.getElementById('inv-a-expiry').value,
+    qty: parseInt(document.getElementById('inv-a-qty').value) || 1,
+    place: document.getElementById('inv-a-place').value,
+    note: document.getElementById('inv-a-note').value.trim(),
+    addedAt: Date.now()
+  };
+  const items = invGetItems();
+  items.push(item);
+  invSaveItems(items);
+  // フォームリセット
+  ['inv-a-emoji','inv-a-name','inv-a-expiry','inv-a-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inv-a-qty').value = '1';
+  showToast(`${name} を追加しました`);
+  switchInvTab('list');
+}
+
+// --- スキャナー ---
+function invToggleScan() {
+  if (invScanning) invStopScan();
+  else invStartScan();
+}
+
+async function invStartScan() {
+  try {
+    document.getElementById('inv-video-container').style.display = 'block';
+    document.getElementById('inv-scan-btn').classList.add('scanning');
+    document.getElementById('inv-scan-btn-text').textContent = 'スキャン停止';
+    invScanning = true;
+
+    invScanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('inv-qr-video');
+    video.srcObject = invScanStream;
+    await video.play();
+
+    if ('BarcodeDetector' in window) {
+      const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
+      const detect = async () => {
+        if (!invScanning) return;
+        try {
+          const codes = await detector.detect(video);
+          if (codes.length > 0) { invStopScan(); invOnBarcode(codes[0].rawValue); return; }
+        } catch(e) {}
+        invScanFrame = requestAnimationFrame(detect);
+      };
+      invScanFrame = requestAnimationFrame(detect);
+    } else {
+      document.getElementById('inv-barcode-result').style.display = 'block';
+      document.getElementById('inv-barcode-result').textContent = '⚠️ 自動読み取り非対応です。番号を手入力してください。';
+      document.getElementById('inv-manual-area').style.display = 'flex';
+    }
+  } catch(e) {
+    alert('カメラを使用できません。\nブラウザの設定でカメラを許可してください。');
+    invStopScan();
+  }
+}
+
+function invStopScan() {
+  if (invScanFrame) { cancelAnimationFrame(invScanFrame); invScanFrame = null; }
+  if (invScanStream) { invScanStream.getTracks().forEach(t => t.stop()); invScanStream = null; }
+  invScanning = false;
+  const vc = document.getElementById('inv-video-container');
+  if (vc) vc.style.display = 'none';
+  const ma = document.getElementById('inv-manual-area');
+  if (ma) ma.style.display = 'none';
+  const btn = document.getElementById('inv-scan-btn');
+  if (btn) { btn.classList.remove('scanning'); document.getElementById('inv-scan-btn-text').textContent = 'スキャン開始'; }
+}
+
+function invSubmitManual() {
+  const code = document.getElementById('inv-manual-input').value.trim();
+  if (!code) return;
+  document.getElementById('inv-manual-input').value = '';
+  invStopScan();
+  invOnBarcode(code);
+}
+
+function invOnBarcode(code) {
+  const resultEl = document.getElementById('inv-barcode-result');
+  resultEl.style.display = 'block';
+  resultEl.textContent = `📊 バーコード: ${code}　→ 商品情報を確認中…`;
+  document.getElementById('inv-scan-form').style.display = 'block';
+  document.getElementById('inv-s-name').value = '';
+  document.getElementById('inv-s-emoji').value = '';
+
+  // Open Food Facts APIで商品名取得（失敗してもOK）
+  fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
+    .then(r => r.json())
+    .then(data => {
+      const p = data.product;
+      if (p) {
+        const name = p.product_name_ja || p.product_name || '';
+        document.getElementById('inv-s-name').value = name;
+        resultEl.textContent = `✅ ${name ? `商品名：${name}` : `バーコード：${code}`}`;
+      } else {
+        resultEl.textContent = `📊 バーコード: ${code}（商品名を入力してください）`;
+      }
+    })
+    .catch(() => {
+      resultEl.textContent = `📊 バーコード: ${code}（商品名を入力してください）`;
+    });
+}
+
+function invSaveScanned() {
+  const name = document.getElementById('inv-s-name').value.trim();
+  if (!name) { alert('食材名を入力してください'); return; }
+  const item = {
+    id: Date.now().toString(),
+    emoji: document.getElementById('inv-s-emoji').value.trim() || '📦',
+    name,
+    expiry: document.getElementById('inv-s-expiry').value,
+    qty: parseInt(document.getElementById('inv-s-qty').value) || 1,
+    place: document.getElementById('inv-s-place').value,
+    note: '',
+    addedAt: Date.now()
+  };
+  const items = invGetItems();
+  items.push(item);
+  invSaveItems(items);
+  document.getElementById('inv-scan-form').style.display = 'none';
+  document.getElementById('inv-barcode-result').style.display = 'none';
+  ['inv-s-emoji','inv-s-name','inv-s-expiry'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inv-s-qty').value = '1';
+  showToast(`${name} を追加しました`);
+  switchInvTab('list');
 }
 </script>
 </body>
