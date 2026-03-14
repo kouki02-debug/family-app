@@ -1066,12 +1066,28 @@
         </select>
         <button onclick="spendAddItem()" style="padding:10px 16px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;cursor:pointer;white-space:nowrap">追加</button>
       </div>
-      <!-- 繰り返し設定 -->
-      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-        <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--muted);cursor:pointer">
-          <input type="checkbox" id="spend-repeat" style="accent-color:var(--amber)">
-          毎月繰り返す（固定費・ローン等）
+      <!-- 支払い頻度 -->
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:0.78rem;color:var(--muted);white-space:nowrap">支払い頻度：</span>
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--deep);cursor:pointer">
+          <input type="radio" name="spend-freq" id="spend-freq-once" value="once" style="accent-color:var(--amber)" checked onchange="spendFreqChange()">
+          1回のみ
         </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--deep);cursor:pointer">
+          <input type="radio" name="spend-freq" id="spend-freq-monthly" value="monthly" style="accent-color:var(--amber)" onchange="spendFreqChange()">
+          毎月
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--deep);cursor:pointer">
+          <input type="radio" name="spend-freq" id="spend-freq-yearly" value="yearly" style="accent-color:var(--amber)" onchange="spendFreqChange()">
+          毎年（年1回）
+        </label>
+      </div>
+      <!-- 最終支払日（毎月・毎年選択時に表示） -->
+      <div id="spend-enddate-row" style="display:none;margin-top:8px;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:0.78rem;color:var(--muted);white-space:nowrap">最終支払日：</span>
+        <input id="spend-enddate" type="month" class="inv-form-input" style="width:160px"
+          placeholder="例：2027-03">
+        <span style="font-size:0.72rem;color:var(--muted)">（空白＝無期限）</span>
       </div>
     </div>
 
@@ -1079,12 +1095,60 @@
     <div style="padding:0 16px 80px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--muted)">今月の支出一覧</div>
-        <div style="display:flex;gap:8px">
-          <button onclick="spendResetCycle()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:#FFE5E2;border:2px solid var(--red);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--red);cursor:pointer">🗑️ 全削除</button>
-          <button onclick="spendPrint()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--warm);border:2px solid var(--amber);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--amber);cursor:pointer">🖨️ 印刷</button>
-        </div>
+        <button onclick="spendPrint()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--warm);border:2px solid var(--amber);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--amber);cursor:pointer">🖨️ 印刷</button>
       </div>
       <div id="spend-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 支出編集モーダル -->
+<div id="spend-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(74,44,26,0.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:var(--cream);border-radius:20px;padding:24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <h3 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:16px">✏️ 支出を編集</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div class="inv-form-label">項目名</div>
+        <input id="sedit-name" class="inv-form-input" maxlength="20">
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1">
+          <div class="inv-form-label">日</div>
+          <input id="sedit-day" class="inv-form-input" type="number" min="1" max="31">
+        </div>
+        <div style="flex:2">
+          <div class="inv-form-label">金額</div>
+          <input id="sedit-amount" class="inv-form-input" type="number" min="0">
+        </div>
+      </div>
+      <div>
+        <div class="inv-form-label">カテゴリ</div>
+        <select id="sedit-cat" class="inv-form-select">
+          <option value="jcb">JCBカード</option>
+          <option value="rakuten">楽天Visaカード</option>
+          <option value="rent">家賃</option>
+          <option value="comm">通信費</option>
+          <option value="car">自動車関係</option>
+          <option value="insurance">保険</option>
+        </select>
+      </div>
+      <div>
+        <div class="inv-form-label">支払い頻度</div>
+        <select id="sedit-freq" class="inv-form-select" onchange="seditFreqChange()">
+          <option value="once">1回のみ</option>
+          <option value="monthly">毎月 🔁</option>
+          <option value="yearly">毎年（年1回）🗓️</option>
+        </select>
+      </div>
+      <div id="sedit-enddate-row">
+        <div class="inv-form-label">最終支払日（空白＝無期限）</div>
+        <input id="sedit-enddate" class="inv-form-input" type="month" placeholder="例：2027-03">
+      </div>
+    </div>
+    <input type="hidden" id="sedit-id">
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="spendEditSave()" style="flex:1;padding:11px;background:var(--green);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;cursor:pointer">保存</button>
+      <button onclick="spendEditClose()" style="padding:11px 16px;background:var(--warm);color:var(--muted);border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;cursor:pointer">キャンセル</button>
     </div>
   </div>
 </div>
@@ -2871,13 +2935,23 @@ function spendInCycle(dateStr, year, month) {
   return d >= start && d <= end;
 }
 
-// アイテムの実際の日付文字列を返す（繰り返しアイテムはcycleの年月で計算）
+// アイテムの実際の日付文字列を返す
 function spendItemDateStr(item, cycleYear, cycleMonth) {
+  if (item.yearly) {
+    // 毎年払い：登録時の月・日を毎年そのまま使う
+    const origMonth = item.month; // 登録時の月
+    const origDay   = item.day;
+    // サイクル内に含まれる年を計算
+    const dateThisYear = `${cycleYear}-${pad(origMonth+1)}-${pad(origDay)}`;
+    const datePrevYear = `${cycleYear-1}-${pad(origMonth+1)}-${pad(origDay)}`;
+    // どちらがサイクル内か判定
+    if (spendInCycle(dateThisYear, cycleYear, cycleMonth)) return dateThisYear;
+    if (spendInCycle(datePrevYear, cycleYear, cycleMonth)) return datePrevYear;
+    return dateThisYear; // デフォルト
+  }
   if (item.repeat) {
-    // 27日以上は開始月、26日以下は翌月
     const y = item.day >= 27 ? cycleYear : (cycleMonth === 11 ? cycleYear + 1 : cycleYear);
     const m = item.day >= 27 ? cycleMonth : (cycleMonth === 11 ? 0 : cycleMonth + 1);
-    // 月末を超えないよう補正
     const maxDay = new Date(y, m + 1, 0).getDate();
     const d = Math.min(item.day, maxDay);
     return `${y}-${pad(m+1)}-${pad(d)}`;
@@ -2889,6 +2963,14 @@ function spendItemDateStr(item, cycleYear, cycleMonth) {
 function spendGetCycleItems(year, month) {
   const items = spendGetItems();
   return items.filter(item => {
+    // 最終支払日チェック（enddate: 'YYYY-MM' 形式）
+    if (item.enddate) {
+      const [ey, em] = item.enddate.split('-').map(Number);
+      const cycleEndYear  = month === 11 ? year + 1 : year;
+      const cycleEndMonth = month === 11 ? 0 : month + 1;
+      // サイクル開始が最終支払日を過ぎていたら除外
+      if (year > ey || (year === ey && month > em)) return false;
+    }
     const ds = spendItemDateStr(item, year, month);
     return spendInCycle(ds, year, month);
   }).map(item => ({
@@ -3080,12 +3162,22 @@ function renderSpendList() {
 
     const info = document.createElement('div');
     info.className = 'spend-item-info';
+    const freqLabel = item.yearly ? '🗓️毎年' : item.repeat ? '🔁毎月' : '';
+    const enddateLabel = item.enddate ? `　〜${item.enddate}まで` : '';
     info.innerHTML = `<div class="spend-item-name">${escHtml(item.name)}</div>
-      <div class="spend-item-meta">${dateLabel}　${CAT_LABELS[item.cat] || item.cat}${item.repeat ? '　🔁毎月' : ''}</div>`;
+      <div class="spend-item-meta">${dateLabel}　${CAT_LABELS[item.cat] || item.cat}${freqLabel ? '　' + freqLabel : ''}${enddateLabel}</div>`;
 
     const amount = document.createElement('div');
     amount.className = 'spend-item-amount';
     amount.textContent = `¥${Number(item.amount).toLocaleString()}`;
+
+    // 編集ボタン
+    const editBtn = document.createElement('button');
+    editBtn.className = 'spend-item-del';
+    editBtn.title = '編集';
+    editBtn.textContent = '✏️';
+    editBtn.style.color = 'var(--green)';
+    editBtn.addEventListener('click', () => spendEditOpen(item));
 
     // 移動ボタン
     const moveBtn = document.createElement('button');
@@ -3107,6 +3199,7 @@ function renderSpendList() {
     row.appendChild(dot);
     row.appendChild(info);
     row.appendChild(amount);
+    row.appendChild(editBtn);
     row.appendChild(moveBtn);
     row.appendChild(delBtn);
     list.appendChild(row);
@@ -3134,23 +3227,90 @@ function spendMoveItem(item) {
   showToast(`${item.name} を ${nd.getMonth()+1}月${nd.getDate()}日に移動しました`);
 }
 
+function spendEditOpen(item) {
+  document.getElementById('sedit-id').value = item.id;
+  document.getElementById('sedit-name').value = item.name;
+  document.getElementById('sedit-day').value = item.day;
+  document.getElementById('sedit-amount').value = item.amount;
+  document.getElementById('sedit-cat').value = item.cat;
+  const freq = item.yearly ? 'yearly' : item.repeat ? 'monthly' : 'once';
+  document.getElementById('sedit-freq').value = freq;
+  document.getElementById('sedit-enddate').value = item.enddate || '';
+  seditFreqChange();
+  document.getElementById('spend-edit-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('sedit-name').focus(), 100);
+}
+
+function spendEditClose() {
+  document.getElementById('spend-edit-modal').style.display = 'none';
+}
+
+function seditFreqChange() {
+  const freq = document.getElementById('sedit-freq').value;
+  document.getElementById('sedit-enddate-row').style.display =
+    (freq === 'monthly' || freq === 'yearly') ? 'block' : 'none';
+}
+
+function spendEditSave() {
+  const id     = document.getElementById('sedit-id').value;
+  const name   = document.getElementById('sedit-name').value.trim();
+  const day    = parseInt(document.getElementById('sedit-day').value);
+  const amount = parseInt(document.getElementById('sedit-amount').value);
+  const cat    = document.getElementById('sedit-cat').value;
+  const freq   = document.getElementById('sedit-freq').value;
+  const enddate = document.getElementById('sedit-enddate').value || '';
+
+  if (!name || !day || !amount) { alert('項目名・日・金額を入力してください'); return; }
+
+  const original = spendGetItems().find(i => i.id === id);
+  if (!original) return;
+
+  const repeat = freq === 'monthly';
+  const yearly = freq === 'yearly';
+  // 日が変わった場合はdateStrも更新
+  const dateStr = freq === 'once'
+    ? `${original.year}-${pad(original.month+1)}-${pad(day)}`
+    : original.dateStr;
+
+  const updated = { ...original, name, day, amount, cat, repeat, yearly, enddate, dateStr };
+  delete updated._dateStr;
+  spendSaveItem(updated);
+  spendEditClose();
+  showToast(`${name} を更新しました`);
+}
+
+
+function spendFreqChange() {
+  const freq = document.querySelector('input[name="spend-freq"]:checked')?.value || 'once';
+  const row = document.getElementById('spend-enddate-row');
+  row.style.display = (freq === 'monthly' || freq === 'yearly') ? 'flex' : 'none';
+}
+
 function spendAddItem() {
   const name   = document.getElementById('spend-name').value.trim();
   const day    = parseInt(document.getElementById('spend-day').value);
   const amount = parseInt(document.getElementById('spend-amount').value);
   const cat    = document.getElementById('spend-cat').value;
-  const repeat = document.getElementById('spend-repeat').checked;
+  const freq   = document.querySelector('input[name="spend-freq"]:checked')?.value || 'once';
+  const enddate = document.getElementById('spend-enddate').value || ''; // 例: '2027-03'
+
   if (!name || !day || !amount || day < 1 || day > 31) {
     alert('項目名・日・金額を正しく入力してください'); return;
   }
+
+  const repeat  = freq === 'monthly';
+  const yearly  = freq === 'yearly';
   const id = Date.now().toString();
   const dateStr = spendItemDateStr({ day, repeat, year: spendYear, month: spendMonth }, spendYear, spendMonth);
-  const item = { id, name, day, amount, cat, repeat, year: spendYear, month: spendMonth, dateStr };
+  const item = { id, name, day, amount, cat, repeat, yearly, enddate, year: spendYear, month: spendMonth, dateStr };
   spendSaveItem(item);
+
   document.getElementById('spend-name').value = '';
   document.getElementById('spend-day').value = '';
   document.getElementById('spend-amount').value = '';
-  document.getElementById('spend-repeat').checked = false;
+  document.getElementById('spend-enddate').value = '';
+  document.getElementById('spend-freq-once').checked = true;
+  spendFreqChange();
   showToast(`${name} を追加しました`);
 }
 
