@@ -1203,6 +1203,7 @@ const FB_MENUS   = `${FB_ROOT}/menus`;
 const FB_ORDERS  = `${FB_ROOT}/orders`;
 const FB_CARE_SVC = `${FB_ROOT}/care_services`;
 const FB_CARE_BK  = `${FB_ROOT}/care_bookings`;
+const FB_SPENDING = `${FB_ROOT}/spending`;
 
 // Firebase リアルタイム同期リスナー設定
 function setupFirebaseListeners() {
@@ -1259,6 +1260,8 @@ function setupFirebaseListeners() {
   });
   // 在庫管理
   setupInvListener();
+  // 支出カレンダー
+  setupSpendListener();
 }
 
 // 画像データはlocalStorageに保存（base64は大きすぎてFirebaseには入れない）
@@ -2797,17 +2800,35 @@ async function alexaAnnounce(meal) {
 // ============================================================
 // 支出カレンダー
 // ============================================================
-const SPEND_KEY = 'fam_spending_v1';
-const SPEND_PW  = '13240622Ko'; // 支出カレンダーのパスワード
+const SPEND_KEY = 'fam_spending_v1'; // 移行用（旧データ読み込みに使用）
+const SPEND_PW  = '13240622Ko';
 const SPEND_UNLOCKED_KEY = 'fam_spend_unlocked_v1';
 const CAT_COLORS = { jcb:'#5B8DD9', rakuten:'#E03A3A', rent:'#7EC8A0', comm:'#E8B84B', car:'#6ABFBF', insurance:'#A07BE0' };
 const CAT_LABELS = { jcb:'JCBカード', rakuten:'楽天Visaカード', rent:'家賃', comm:'通信費', car:'自動車関係', insurance:'保険' };
-let spendYear, spendMonth; // ここでの「月」は給与サイクルの「開始月」
+let spendYear, spendMonth;
+let _spendItems = []; // Firebaseから取得したキャッシュ
 
-function spendGetItems() {
-  try { return JSON.parse(localStorage.getItem(SPEND_KEY)) || []; } catch { return []; }
+function setupSpendListener() {
+  db.ref(FB_SPENDING).on('value', snap => {
+    const val = snap.val();
+    _spendItems = val ? Object.entries(val).map(([key, v]) => ({...v, id: key})) : [];
+    if (currentPage === 'spending' && sessionStorage.getItem(SPEND_UNLOCKED_KEY) === '1') {
+      renderSpendCal();
+      renderSpendList();
+    }
+  });
 }
-function spendSaveItems(items) { localStorage.setItem(SPEND_KEY, JSON.stringify(items)); }
+
+function spendGetItems() { return _spendItems; }
+
+function spendSaveItem(item) {
+  const { id, ...data } = item;
+  return db.ref(`${FB_SPENDING}/${id}`).set(data);
+}
+
+function spendDeleteFromDB(id) {
+  return db.ref(`${FB_SPENDING}/${id}`).remove();
+}
 
 // 給与サイクル開始日を返す（27日が土日なら直前の金曜）
 // 戻り値: Date オブジェクト（その月の27日 or 繰り上げた金曜）
@@ -3030,23 +3051,76 @@ function renderSpendCal() {
 function renderSpendList() {
   const cycleItems = spendGetCycleItems(spendYear, spendMonth);
   const list = document.getElementById('spend-list');
+  list.innerHTML = '';
   if (cycleItems.length === 0) {
     list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:0.85rem">支出がありません</div>';
     return;
   }
-  list.innerHTML = cycleItems.map(item => {
+  cycleItems.forEach(item => {
     const d = new Date(item._dateStr + 'T00:00:00');
     const dateLabel = `${d.getMonth()+1}月${d.getDate()}日`;
-    return `<div class="spend-item-row">
-      <div class="spend-item-dot" style="background:${CAT_COLORS[item.cat]}"></div>
-      <div class="spend-item-info">
-        <div class="spend-item-name">${escHtml(item.name)}</div>
-        <div class="spend-item-meta">${dateLabel}　${CAT_LABELS[item.cat]}${item.repeat ? '　🔁毎月' : ''}</div>
-      </div>
-      <div class="spend-item-amount">¥${Number(item.amount).toLocaleString()}</div>
-      <button class="spend-item-del" onclick="spendDeleteItem('${item.id}')">✕</button>
-    </div>`;
-  }).join('');
+
+    const row = document.createElement('div');
+    row.className = 'spend-item-row';
+
+    const dot = document.createElement('div');
+    dot.className = 'spend-item-dot';
+    dot.style.background = CAT_COLORS[item.cat] || '#999';
+
+    const info = document.createElement('div');
+    info.className = 'spend-item-info';
+    info.innerHTML = `<div class="spend-item-name">${escHtml(item.name)}</div>
+      <div class="spend-item-meta">${dateLabel}　${CAT_LABELS[item.cat] || item.cat}${item.repeat ? '　🔁毎月' : ''}</div>`;
+
+    const amount = document.createElement('div');
+    amount.className = 'spend-item-amount';
+    amount.textContent = `¥${Number(item.amount).toLocaleString()}`;
+
+    // 移動ボタン
+    const moveBtn = document.createElement('button');
+    moveBtn.className = 'spend-item-del';
+    moveBtn.title = '別の月へ移動';
+    moveBtn.textContent = '↪';
+    moveBtn.style.color = 'var(--amber)';
+    moveBtn.addEventListener('click', () => spendMoveItem(item));
+
+    // 削除ボタン
+    const delBtn = document.createElement('button');
+    delBtn.className = 'spend-item-del';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => {
+      if (!confirm(`「${item.name}」を削除しますか？`)) return;
+      spendDeleteFromDB(item.id);
+    });
+
+    row.appendChild(dot);
+    row.appendChild(info);
+    row.appendChild(amount);
+    row.appendChild(moveBtn);
+    row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+}
+
+function spendMoveItem(item) {
+  const d = new Date(item._dateStr + 'T00:00:00');
+  const currentLabel = `${d.getMonth()+1}月${d.getDate()}日`;
+  const newDateStr = prompt(`「${item.name}」の日付を変更します。\n現在：${currentLabel}\n\n新しい日付を入力（例：2026-04-10）`);
+  if (!newDateStr) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(newDateStr)) { alert('形式が違います。例：2026-04-10'); return; }
+  const nd = new Date(newDateStr + 'T00:00:00');
+  if (isNaN(nd)) { alert('無効な日付です'); return; }
+  const updated = {
+    ...item,
+    day: nd.getDate(),
+    year: nd.getFullYear(),
+    month: nd.getMonth(),
+    dateStr: newDateStr,
+    repeat: false // 移動後は繰り返しを解除
+  };
+  delete updated._dateStr; // キャッシュフィールドは保存しない
+  spendSaveItem(updated);
+  showToast(`${item.name} を ${nd.getMonth()+1}月${nd.getDate()}日に移動しました`);
 }
 
 function spendAddItem() {
@@ -3058,17 +3132,14 @@ function spendAddItem() {
   if (!name || !day || !amount || day < 1 || day > 31) {
     alert('項目名・日・金額を正しく入力してください'); return;
   }
-  const items = spendGetItems();
-  // 繰り返しでない場合は実際の日付を保存
+  const id = Date.now().toString();
   const dateStr = spendItemDateStr({ day, repeat, year: spendYear, month: spendMonth }, spendYear, spendMonth);
-  items.push({ id: Date.now().toString(), name, day, amount, cat, repeat, year: spendYear, month: spendMonth, dateStr });
-  spendSaveItems(items);
+  const item = { id, name, day, amount, cat, repeat, year: spendYear, month: spendMonth, dateStr };
+  spendSaveItem(item);
   document.getElementById('spend-name').value = '';
   document.getElementById('spend-day').value = '';
   document.getElementById('spend-amount').value = '';
   document.getElementById('spend-repeat').checked = false;
-  renderSpendCal();
-  renderSpendList();
   showToast(`${name} を追加しました`);
 }
 
