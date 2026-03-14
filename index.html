@@ -433,6 +433,20 @@
   .alexa-morning{background:#E8A44A} .alexa-lunch{background:#5A9E6F} .alexa-dinner{background:#6A7FBF}
   .alexa-btn:active{transform:scale(0.97);opacity:0.9}
 
+  /* ===== 予算・決算 ===== */
+  .bcat-row{margin-bottom:12px}
+  .bcat-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .bcat-label{display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--deep);font-weight:500}
+  .bcat-amounts{font-size:0.75rem;color:var(--muted)}
+  .bcat-bar-bg{height:10px;background:var(--warm);border-radius:10px;overflow:hidden}
+  .bcat-bar-fill{height:100%;border-radius:10px;transition:width .4s ease}
+  .bcat-over{background:var(--red)!important}
+  .yearly-row{background:white;border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+  .budget-cat-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .budget-cat-input-row label{display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--deep);min-width:110px}
+  .budget-cat-input-row input{flex:1;padding:8px 10px;border:2px solid var(--warm);border-radius:8px;font-size:0.88rem;outline:none;color:var(--text);text-align:right}
+  .budget-cat-input-row input:focus{border-color:var(--amber)}
+
   /* ===== 支出カレンダー ===== */
   .spend-legend{display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--muted)}
   .spend-legend::before{content:'';width:10px;height:10px;border-radius:3px;background:var(--lc);flex-shrink:0}
@@ -448,8 +462,9 @@
   .spend-day-num{font-size:0.8rem;font-weight:700;color:var(--deep);margin-bottom:2px}
   .spend-chip{font-size:0.62rem;padding:1px 5px;border-radius:4px;color:white;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
   .spend-more{font-size:0.6rem;color:var(--muted)}
-  .cat-jcb{background:#5B8DD9} .cat-rakuten{background:#E03A3A} .cat-rent{background:#7EC8A0}
-  .cat-comm{background:#E8B84B} .cat-car{background:#6ABFBF} .cat-insurance{background:#A07BE0}
+  .cat-food{background:#E07B5A} .cat-daily{background:#7EC8A0} .cat-hobby{background:#A07BE0}
+  .cat-social{background:#E8B84B} .cat-transport{background:#5B8DD9} .cat-fashion{background:#E07B9A}
+  .cat-health{background:#6ABFBF} .cat-car{background:#8B7355} .cat-housing{background:#7B9FE0} .cat-tax{background:#C0675A} .cat-insurance{background:#A07BE0} .cat-other{background:#AAA} .cat-unknown{background:#CCC}
   .spend-item-row{background:white;border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
   .spend-item-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
   .spend-item-info{flex:1}
@@ -606,14 +621,14 @@
         <span class="app-card-label">在庫管理</span>
         <span class="app-card-desc">食材・賞味期限</span>
       </div>
-      <div class="app-card" onclick="goTo('spending')">
-        <span class="app-card-icon">💰</span>
-        <span class="app-card-label">支出カレンダー(功稀)</span>
-        <span class="app-card-desc">固定費・サブスク等</span>
+      <div class="app-card" onclick="goTo('musuko')">
+        <span class="app-card-icon">👦</span>
+        <span class="app-card-label">息子タブ(功稀)</span>
+        <span class="app-card-desc">支出・予算・決算</span>
       </div>
     </div>
     <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
-      <span>ver 2.1　</span><span>更新日：2026年3月14日</span>
+      <span>ver 2.3　</span><span>更新日：2026年3月14日</span>
     </div>
   </div>
 </div>
@@ -969,190 +984,231 @@
   </div>
 </div>
 
-<!-- SPENDING CALENDAR PAGE -->
-<div class="page" id="page-spending">
+<!-- MUSUKO TAB（息子タブ統合ページ） -->
+<div class="page" id="page-musuko">
   <!-- パスワードロック -->
-  <div id="spending-lock" class="page-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px">
-    <div style="font-size:2.5rem">💰</div>
-    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;color:var(--deep)">支出カレンダー</h2>
+  <div id="musuko-lock" class="page-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px">
+    <div style="font-size:2.5rem">👦</div>
+    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;color:var(--deep)">息子タブ(功稀)</h2>
     <p style="color:var(--muted);font-size:0.85rem">パスワードを入力してください</p>
-    <input type="password" id="spending-pw-input" placeholder="••••••" maxlength="20"
+    <input type="password" id="musuko-pw-input" placeholder="••••••" maxlength="20"
       style="padding:12px 14px;border:2px solid var(--warm);border-radius:10px;font-size:1.1rem;outline:none;text-align:center;letter-spacing:0.2em;width:200px;color:var(--text)"
-      onkeydown="if(event.key==='Enter') checkSpendingPw()">
-    <div id="spending-pw-error" style="color:var(--red);font-size:0.82rem;min-height:16px"></div>
-    <button onclick="checkSpendingPw()" style="padding:12px 32px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;cursor:pointer">入る</button>
+      onkeydown="if(event.key==='Enter') checkMusukoPw()">
+    <div id="musuko-pw-error" style="color:var(--red);font-size:0.82rem;min-height:16px"></div>
+    <button onclick="checkMusukoPw()" style="padding:12px 32px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;cursor:pointer">入る</button>
   </div>
 
   <!-- メインコンテンツ -->
-  <div id="spending-main" style="display:none">
-    <!-- カレンダーヘッダー -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px">
-      <button onclick="spendChangeMonth(-1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">←</button>
-      <span id="spend-month-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;color:var(--deep);font-weight:700"></span>
-      <button onclick="spendChangeMonth(1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">→</button>
+  <div id="musuko-main" style="display:none">
+    <!-- サブタブ -->
+    <div style="display:flex;background:var(--warm);border-bottom:3px solid var(--amber);position:sticky;top:56px;z-index:40">
+      <button class="tab active" id="mtab-spending" onclick="switchMusukoTab('spending')" style="flex:1;font-size:0.82rem">💰 支出カレンダー</button>
+      <button class="tab" id="mtab-monthly" onclick="switchMusukoTab('monthly')" style="flex:1;font-size:0.82rem">📅 月次決算</button>
+      <button class="tab" id="mtab-budget" onclick="switchMusukoTab('budget')" style="flex:1;font-size:0.82rem">🎯 予算設定</button>
+      <button class="tab" id="mtab-yearly" onclick="switchMusukoTab('yearly')" style="flex:1;font-size:0.82rem">📈 年間推移</button>
     </div>
 
-    <!-- 凡例 -->
-    <div style="display:flex;gap:12px;padding:0 16px 10px;flex-wrap:wrap">
-      <span class="spend-legend" style="--lc:#5B8DD9">JCBカード</span>
-      <span class="spend-legend" style="--lc:#E03A3A">楽天Visa</span>
-      <span class="spend-legend" style="--lc:#7EC8A0">家賃</span>
-      <span class="spend-legend" style="--lc:#E8B84B">通信費</span>
-      <span class="spend-legend" style="--lc:#6ABFBF">自動車関係</span>
-      <span class="spend-legend" style="--lc:#A07BE0">保険</span>
-    </div>
-
-    <!-- カレンダーグリッド -->
-    <div style="padding:0 10px">
-      <div class="spend-cal-grid" id="spend-cal-header">
-        <div class="spend-dow sun">日</div><div class="spend-dow">月</div><div class="spend-dow">火</div>
-        <div class="spend-dow">水</div><div class="spend-dow">木</div><div class="spend-dow">金</div>
-        <div class="spend-dow sat">土</div>
+    <!-- 支出カレンダーセクション（既存の中身を流用） -->
+    <div id="msec-spending" style="display:block">
+      <!-- カレンダーヘッダー -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px">
+        <button onclick="spendChangeMonth(-1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">←</button>
+        <span id="spend-month-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);font-weight:700"></span>
+        <button onclick="spendChangeMonth(1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">→</button>
       </div>
-      <div class="spend-cal-grid" id="spend-cal-grid"></div>
-    </div>
-
-    <!-- 今月の集計 -->
-    <div style="padding:14px 16px 8px">
-      <!-- 収入設定 -->
-      <div style="background:white;border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px">
-        <span style="font-size:1.1rem">💴</span>
-        <div style="flex:1">
-          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:2px">月収（手取り平均）</div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:0.88rem;color:var(--muted)">¥</span>
-            <input id="spend-income" type="number" placeholder="例：250000" min="0"
-              style="border:none;outline:none;font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);width:140px;background:transparent"
-              oninput="spendUpdateIncome(this.value)">
+      <!-- 凡例 -->
+      <div style="display:flex;gap:8px;padding:0 16px 8px;flex-wrap:wrap" id="spend-legend-area"></div>
+      <!-- カレンダーグリッド -->
+      <div style="padding:0 10px">
+        <div class="spend-cal-grid">
+          <div class="spend-dow sun">日</div><div class="spend-dow">月</div><div class="spend-dow">火</div>
+          <div class="spend-dow">水</div><div class="spend-dow">木</div><div class="spend-dow">金</div>
+          <div class="spend-dow sat">土</div>
+        </div>
+        <div class="spend-cal-grid" id="spend-cal-grid"></div>
+      </div>
+      <!-- 収支サマリー -->
+      <div style="padding:12px 16px 6px">
+        <div style="background:white;border-radius:12px;padding:12px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:1.1rem">💴</span>
+          <div style="flex:1">
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:2px">月収（手取り平均）</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.88rem;color:var(--muted)">¥</span>
+              <input id="spend-income" type="number" placeholder="例：250000" min="0"
+                style="border:none;outline:none;font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);width:140px;background:transparent"
+                oninput="spendUpdateIncome(this.value)">
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:0.72rem;color:var(--muted)">残り（収入−支出）</div>
+            <div id="spend-balance" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;font-weight:700;color:var(--green)">—</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:0.72rem;color:var(--muted)">残り（収入−支出）</div>
-          <div id="spend-balance" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;font-weight:700;color:var(--green)">—</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:white;border-radius:12px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:3px">今月の支出合計</div>
+            <div id="spend-total" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;color:var(--deep);font-weight:700">¥0</div>
+          </div>
+          <div style="background:white;border-radius:12px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:3px">支出件数</div>
+            <div id="spend-count" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;color:var(--deep);font-weight:700">0件</div>
+          </div>
         </div>
       </div>
-      <!-- 支出合計・件数 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <!-- カテゴリ別内訳 -->
+      <div style="padding:6px 16px 8px"><div id="spend-breakdown" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+      <!-- 追加フォーム -->
+      <div style="background:white;margin:0 10px 10px;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.9rem;color:var(--deep);margin-bottom:10px">支出を追加</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="spend-name" class="inv-form-input" placeholder="項目名" style="flex:2;min-width:100px" maxlength="20">
+          <input id="spend-day" class="inv-form-input" type="number" placeholder="日" min="1" max="31" style="width:54px">
+          <input id="spend-amount" class="inv-form-input" type="number" placeholder="金額" min="0" style="flex:1;min-width:70px">
+          <select id="spend-cat" class="inv-form-select" style="flex:1;min-width:100px"></select>
+          <button onclick="spendAddItem()" style="padding:10px 14px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;cursor:pointer;white-space:nowrap">追加</button>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:0.76rem;color:var(--muted);white-space:nowrap">支払い頻度：</span>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.8rem;color:var(--deep);cursor:pointer"><input type="radio" name="spend-freq" id="spend-freq-once" value="once" style="accent-color:var(--amber)" checked onchange="spendFreqChange()">1回のみ</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.8rem;color:var(--deep);cursor:pointer"><input type="radio" name="spend-freq" id="spend-freq-monthly" value="monthly" style="accent-color:var(--amber)" onchange="spendFreqChange()">毎月</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.8rem;color:var(--deep);cursor:pointer"><input type="radio" name="spend-freq" id="spend-freq-yearly" value="yearly" style="accent-color:var(--amber)" onchange="spendFreqChange()">毎年</label>
+        </div>
+        <div id="spend-enddate-row" style="display:none;margin-top:8px;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:0.76rem;color:var(--muted);white-space:nowrap">最終支払日：</span>
+          <input id="spend-enddate" type="month" class="inv-form-input" style="width:150px">
+          <span style="font-size:0.72rem;color:var(--muted)">（空白＝無期限）</span>
+        </div>
+      </div>
+      <!-- 支出一覧 -->
+      <div style="padding:0 16px 80px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--muted)">今月の支出一覧</div>
+          <button onclick="spendPrint()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--warm);border:2px solid var(--amber);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--amber);cursor:pointer">🖨️ 印刷</button>
+        </div>
+        <div id="spend-list"></div>
+      </div>
+    </div>
+
+    <!-- 月次決算セクション -->
+    <div id="msec-monthly" class="page-body" style="display:none;padding-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <button onclick="budgetChangeMonth(-1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">←</button>
+        <span id="budget-month-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;color:var(--deep);font-weight:700"></span>
+        <button onclick="budgetChangeMonth(1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">→</button>
+      </div>
+
+      <!-- 先月残高（編集可） -->
+      <div style="background:linear-gradient(135deg,#667eea22,#764ba222);border:2px solid #7B9FE0;border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:1.2rem">📦</span>
+            <span style="font-size:0.75rem;color:var(--muted)">先月の残高（繰越）</span>
+          </div>
+          <button onclick="togglePrevBalEdit()" style="background:none;border:none;font-size:0.75rem;color:#5B8DD9;cursor:pointer;text-decoration:underline">編集</button>
+        </div>
+        <div id="bsum-prev-balance-display" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;font-weight:700;color:#5B8DD9">—</div>
+        <div id="bsum-prev-balance-edit" style="display:none;margin-top:8px;display:none;align-items:center;gap:8px">
+          <span style="font-size:0.85rem;color:var(--muted)">¥</span>
+          <input id="prev-balance-input" type="number" placeholder="例：15000（マイナスは-15000）"
+            style="flex:1;border:2px solid #7B9FE0;border-radius:8px;padding:7px 10px;font-size:0.9rem;outline:none">
+          <button onclick="savePrevBalance()" style="padding:7px 14px;background:#5B8DD9;color:white;border:none;border-radius:8px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;cursor:pointer">保存</button>
+          <button onclick="togglePrevBalEdit()" style="padding:7px 10px;background:var(--warm);color:var(--muted);border:none;border-radius:8px;font-size:0.82rem;cursor:pointer">✕</button>
+        </div>
+      </div>
+
+      <!-- 月収（編集可） -->
+      <div style="background:white;border-radius:12px;padding:12px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.06);margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.1rem">💴</span>
+            <span style="font-size:0.75rem;color:var(--muted)">月収（手取り）</span>
+          </div>
+          <button onclick="toggleIncomeEdit()" style="background:none;border:none;font-size:0.75rem;color:var(--amber);cursor:pointer;text-decoration:underline">編集</button>
+        </div>
+        <div id="bsum-income" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;font-weight:700;color:var(--deep);margin-top:3px">—</div>
+        <div id="bsum-income-edit" style="display:none;margin-top:8px;align-items:center;gap:8px">
+          <span style="font-size:0.85rem;color:var(--muted)">¥</span>
+          <input id="budget-income-monthly-input" type="number" placeholder="例：250000" min="0"
+            style="flex:1;border:2px solid var(--amber);border-radius:8px;padding:7px 10px;font-size:0.9rem;outline:none">
+          <button onclick="saveIncomeFromMonthly()" style="padding:7px 14px;background:var(--amber);color:white;border:none;border-radius:8px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;cursor:pointer">保存</button>
+          <button onclick="toggleIncomeEdit()" style="padding:7px 10px;background:var(--warm);color:var(--muted);border:none;border-radius:8px;font-size:0.82rem;cursor:pointer">✕</button>
+        </div>
+      </div>
+
+      <!-- 収支サマリー -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
-          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px">今月の支出合計</div>
-          <div id="spend-total" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.4rem;color:var(--deep);font-weight:700">¥0</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:3px">💸 実績支出</div>
+          <div id="bsum-actual" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;font-weight:700;color:var(--red)">¥0</div>
         </div>
         <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
-          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px">支出件数</div>
-          <div id="spend-count" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.4rem;color:var(--deep);font-weight:700">0件</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:3px">🎯 予算合計</div>
+          <div id="bsum-budget" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;font-weight:700;color:#5B8DD9">¥0</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.06);grid-column:span 2">
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:3px">✨ 今月余剰／赤字</div>
+          <div id="bsum-balance" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.4rem;font-weight:700">—</div>
+        </div>
+      </div>
+
+      <!-- カテゴリ別 予算vs実績（書き込み可） -->
+      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep)">カテゴリ別　予算 vs 実績</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="toggleCatMemo()" id="cat-memo-toggle-btn" style="font-size:0.72rem;padding:4px 10px;background:var(--warm);border:2px solid var(--amber);border-radius:8px;color:var(--amber);cursor:pointer;font-family:'Zen Maru Gothic',sans-serif">✏️ メモ入力</button>
+            <button onclick="printMonthly()" style="font-size:0.72rem;padding:4px 10px;background:var(--warm);border:2px solid var(--amber);border-radius:8px;color:var(--amber);cursor:pointer;font-family:'Zen Maru Gothic',sans-serif">🖨️ 印刷</button>
+          </div>
+        </div>
+        <div id="bcat-rows"></div>
+      </div>
+
+      <!-- グラフ -->
+      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:12px">予算 vs 実績グラフ</div>
+        <canvas id="budget-chart" style="width:100%;max-height:220px"></canvas>
+      </div>
+    </div>
+
+    <!-- 予算設定セクション -->
+    <div id="msec-budget" class="page-body" style="display:none;padding-bottom:20px">
+      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:14px">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:4px">💴 月収（手取り平均）</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:var(--muted)">¥</span>
+          <input id="budget-income-input" type="number" placeholder="例：250000"
+            style="border:none;border-bottom:2px solid var(--warm);outline:none;font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;color:var(--deep);width:100%;padding:4px 0;background:transparent"
+            oninput="budgetSaveIncome(this.value)">
+        </div>
+      </div>
+      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:12px">🎯 カテゴリ別　月次予算</div>
+        <div id="budget-cat-inputs"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--warm)">
+          <span style="font-size:0.82rem;color:var(--muted)">予算合計</span>
+          <span id="budget-total-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:#5B8DD9">¥0</span>
         </div>
       </div>
     </div>
 
-    <!-- カテゴリ別内訳 -->
-    <div style="padding:0 16px 10px">
-      <div id="spend-breakdown" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-    </div>
-
-    <!-- 追加フォーム -->
-    <div style="background:white;margin:0 10px 10px;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.9rem;color:var(--deep);margin-bottom:10px">支出を追加</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="spend-name" class="inv-form-input" placeholder="項目名（例：家賃）" style="flex:2;min-width:120px" maxlength="20">
-        <input id="spend-day" class="inv-form-input" type="number" placeholder="日" min="1" max="31" style="width:60px">
-        <input id="spend-amount" class="inv-form-input" type="number" placeholder="金額" min="0" style="flex:1;min-width:80px">
-        <select id="spend-cat" class="inv-form-select" style="flex:1;min-width:100px">
-          <option value="jcb">JCBカード</option>
-          <option value="rakuten">楽天Visaカード</option>
-          <option value="rent">家賃</option>
-          <option value="comm">通信費</option>
-          <option value="car">自動車関係</option>
-          <option value="insurance">保険</option>
-        </select>
-        <button onclick="spendAddItem()" style="padding:10px 16px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;cursor:pointer;white-space:nowrap">追加</button>
+    <!-- 年間推移セクション -->
+    <div id="msec-yearly" class="page-body" style="display:none;padding-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <button onclick="budgetChangeYear(-1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">←</button>
+        <span id="budget-year-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);font-weight:700"></span>
+        <button onclick="budgetChangeYear(1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">→</button>
       </div>
-      <!-- 支払い頻度 -->
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <span style="font-size:0.78rem;color:var(--muted);white-space:nowrap">支払い頻度：</span>
-        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--deep);cursor:pointer">
-          <input type="radio" name="spend-freq" id="spend-freq-once" value="once" style="accent-color:var(--amber)" checked onchange="spendFreqChange()">
-          1回のみ
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--deep);cursor:pointer">
-          <input type="radio" name="spend-freq" id="spend-freq-monthly" value="monthly" style="accent-color:var(--amber)" onchange="spendFreqChange()">
-          毎月
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--deep);cursor:pointer">
-          <input type="radio" name="spend-freq" id="spend-freq-yearly" value="yearly" style="accent-color:var(--amber)" onchange="spendFreqChange()">
-          毎年（年1回）
-        </label>
+      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:14px">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:12px">月別　支出推移</div>
+        <canvas id="yearly-chart" style="width:100%;max-height:240px"></canvas>
       </div>
-      <!-- 最終支払日（毎月・毎年選択時に表示） -->
-      <div id="spend-enddate-row" style="display:none;margin-top:8px;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:0.78rem;color:var(--muted);white-space:nowrap">最終支払日：</span>
-        <input id="spend-enddate" type="month" class="inv-form-input" style="width:160px"
-          placeholder="例：2027-03">
-        <span style="font-size:0.72rem;color:var(--muted)">（空白＝無期限）</span>
-      </div>
-    </div>
-
-    <!-- 今月の支出リスト -->
-    <div style="padding:0 16px 80px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--muted)">今月の支出一覧</div>
-        <button onclick="spendPrint()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--warm);border:2px solid var(--amber);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--amber);cursor:pointer">🖨️ 印刷</button>
-      </div>
-      <div id="spend-list"></div>
+      <div id="yearly-table"></div>
     </div>
   </div>
 </div>
 
-<!-- 支出編集モーダル -->
-<div id="spend-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(74,44,26,0.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-  <div style="background:var(--cream);border-radius:20px;padding:24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-    <h3 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:16px">✏️ 支出を編集</h3>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div>
-        <div class="inv-form-label">項目名</div>
-        <input id="sedit-name" class="inv-form-input" maxlength="20">
-      </div>
-      <div style="display:flex;gap:8px">
-        <div style="flex:1">
-          <div class="inv-form-label">日</div>
-          <input id="sedit-day" class="inv-form-input" type="number" min="1" max="31">
-        </div>
-        <div style="flex:2">
-          <div class="inv-form-label">金額</div>
-          <input id="sedit-amount" class="inv-form-input" type="number" min="0">
-        </div>
-      </div>
-      <div>
-        <div class="inv-form-label">カテゴリ</div>
-        <select id="sedit-cat" class="inv-form-select">
-          <option value="jcb">JCBカード</option>
-          <option value="rakuten">楽天Visaカード</option>
-          <option value="rent">家賃</option>
-          <option value="comm">通信費</option>
-          <option value="car">自動車関係</option>
-          <option value="insurance">保険</option>
-        </select>
-      </div>
-      <div>
-        <div class="inv-form-label">支払い頻度</div>
-        <select id="sedit-freq" class="inv-form-select" onchange="seditFreqChange()">
-          <option value="once">1回のみ</option>
-          <option value="monthly">毎月 🔁</option>
-          <option value="yearly">毎年（年1回）🗓️</option>
-        </select>
-      </div>
-      <div id="sedit-enddate-row">
-        <div class="inv-form-label">最終支払日（空白＝無期限）</div>
-        <input id="sedit-enddate" class="inv-form-input" type="month" placeholder="例：2027-03">
-      </div>
-    </div>
-    <input type="hidden" id="sedit-id">
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button onclick="spendEditSave()" style="flex:1;padding:11px;background:var(--green);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;cursor:pointer">保存</button>
-      <button onclick="spendEditClose()" style="padding:11px 16px;background:var(--warm);color:var(--muted);border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;cursor:pointer">キャンセル</button>
-    </div>
-  </div>
-</div>
-
+<div class="page" id="page-spending" style="display:none"></div>
 <!-- LIGHTBOX -->
 <div id="lightbox">
   <button id="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -1165,6 +1221,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ============================================================
@@ -1337,6 +1394,10 @@ function setupFirebaseListeners() {
   setupInvListener();
   // 支出カレンダー
   setupSpendListener();
+  // 予算設定
+  setupBudgetListener();
+  // 先月残高・カテゴリメモ
+  setupPrevBalanceListener();
 }
 
 // 画像データはlocalStorageに保存（base64は大きすぎてFirebaseには入れない）
@@ -1492,22 +1553,22 @@ function goTo(dest) {
     document.getElementById('header-title').textContent = '在庫管理';
     document.getElementById('back-btn').style.display = 'block';
     switchInvTab('list');
-  } else if (dest === 'spending') {
-    showPage('spending');
+  } else if (dest === 'musuko' || dest === 'spending' || dest === 'budget') {
+    showPage('musuko');
     document.getElementById('bottom-nav').style.display = 'none';
     document.getElementById('meal-tabs').style.display = 'none';
     document.getElementById('care-tabs').style.display = 'none';
     document.getElementById('inv-tabs').style.display = 'none';
-    document.getElementById('header-icon').textContent = '💰';
-    document.getElementById('header-title').textContent = '支出カレンダー(功稀)';
+    document.getElementById('header-icon').textContent = '👦';
+    document.getElementById('header-title').textContent = '息子タブ(功稀)';
     document.getElementById('back-btn').style.display = 'block';
-    initSpendingPage();
+    initMusukoPage(dest === 'budget' ? 'monthly' : 'spending');
   }
 }
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home', inventory: 'page-inventory', spending: 'page-spending' };
+  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home', inventory: 'page-inventory', spending: 'page-musuko', budget: 'page-musuko', musuko: 'page-musuko' };
   document.getElementById(idMap[name] || 'page-home').classList.add('active');
   currentPage = name;
 }
@@ -2878,8 +2939,27 @@ async function alexaAnnounce(meal) {
 const SPEND_KEY = 'fam_spending_v1'; // 移行用（旧データ読み込みに使用）
 const SPEND_PW  = '13240622Ko';
 const SPEND_UNLOCKED_KEY = 'fam_spend_unlocked_v1';
-const CAT_COLORS = { jcb:'#5B8DD9', rakuten:'#E03A3A', rent:'#7EC8A0', comm:'#E8B84B', car:'#6ABFBF', insurance:'#A07BE0' };
-const CAT_LABELS = { jcb:'JCBカード', rakuten:'楽天Visaカード', rent:'家賃', comm:'通信費', car:'自動車関係', insurance:'保険' };
+const CAT_COLORS = {
+  food:'#E07B5A', daily:'#7EC8A0', hobby:'#A07BE0', social:'#E8B84B',
+  transport:'#5B8DD9', fashion:'#E07B9A', health:'#6ABFBF', car:'#8B7355',
+  education:'#D4A017', special:'#C08060', cash:'#708090', utility:'#4AABDE',
+  comm:'#F4845F', housing:'#7B9FE0', tax:'#C0675A', insurance:'#9B7BE0',
+  other:'#AAAAAA', unknown:'#CCCCCC'
+};
+const CAT_LABELS = {
+  food:'食費', daily:'日用品', hobby:'趣味・娯楽', social:'交際費',
+  transport:'交通費', fashion:'衣服・美容', health:'健康・医療', car:'自動車',
+  education:'教養・教育', special:'特別な支出', cash:'現金・カード', utility:'水道・光熱費',
+  comm:'通信費', housing:'住宅', tax:'税・社会保障', insurance:'保険',
+  other:'その他', unknown:'未分類'
+};
+
+// カテゴリselect用オプションHTML
+function buildCatOptions(selected) {
+  return Object.entries(CAT_LABELS).map(([k, v]) =>
+    `<option value="${k}"${k === selected ? ' selected' : ''}>${v}</option>`
+  ).join('');
+}
 let spendYear, spendMonth;
 let _spendItems = []; // Firebaseから取得したキャッシュ
 
@@ -2887,9 +2967,10 @@ function setupSpendListener() {
   db.ref(FB_SPENDING).on('value', snap => {
     const val = snap.val();
     _spendItems = val ? Object.entries(val).map(([key, v]) => ({...v, id: key})) : [];
-    if (currentPage === 'spending' && sessionStorage.getItem(SPEND_UNLOCKED_KEY) === '1') {
-      renderSpendCal();
-      renderSpendList();
+    if (currentPage === 'musuko' && sessionStorage.getItem(MUSUKO_UNLOCKED_KEY) === '1') {
+      const activeTab = document.querySelector('#musuko-main .tab.active');
+      const tab = activeTab ? activeTab.id.replace('mtab-','') : 'spending';
+      if (tab === 'spending') { renderSpendCal(); renderSpendList(); }
     }
   });
 }
@@ -3232,7 +3313,9 @@ function spendEditOpen(item) {
   document.getElementById('sedit-name').value = item.name;
   document.getElementById('sedit-day').value = item.day;
   document.getElementById('sedit-amount').value = item.amount;
-  document.getElementById('sedit-cat').value = item.cat;
+  const catSel = document.getElementById('sedit-cat');
+  catSel.innerHTML = buildCatOptions(item.cat);
+  catSel.value = item.cat;
   const freq = item.yearly ? 'yearly' : item.repeat ? 'monthly' : 'once';
   document.getElementById('sedit-freq').value = freq;
   document.getElementById('sedit-enddate').value = item.enddate || '';
@@ -3357,7 +3440,440 @@ function spendPrint() {
 }
 
 
+// ============================================================
+// 息子タブ統合ロック
+// ============================================================
+const MUSUKO_PW           = '13240622Ko';
+const MUSUKO_UNLOCKED_KEY = 'fam_musuko_unlocked_v1';
+
+function checkMusukoPw() {
+  const v = document.getElementById('musuko-pw-input').value;
+  if (v === MUSUKO_PW) {
+    sessionStorage.setItem(MUSUKO_UNLOCKED_KEY, '1');
+    // 旧キーも互換のためセット
+    sessionStorage.setItem(SPEND_UNLOCKED_KEY, '1');
+    sessionStorage.setItem(BUDGET_UNLOCKED_KEY, '1');
+    document.getElementById('musuko-lock').style.display = 'none';
+    document.getElementById('musuko-main').style.display = 'block';
+    initMusukoContent();
+  } else {
+    document.getElementById('musuko-pw-error').textContent = 'パスワードが違います';
+    document.getElementById('musuko-pw-input').value = '';
+    document.getElementById('musuko-pw-input').focus();
+  }
+}
+
+function initMusukoPage(defaultTab) {
+  defaultTab = defaultTab || 'spending';
+  if (sessionStorage.getItem(MUSUKO_UNLOCKED_KEY) === '1') {
+    document.getElementById('musuko-lock').style.display = 'none';
+    document.getElementById('musuko-main').style.display = 'block';
+    initMusukoContent(defaultTab);
+  } else {
+    document.getElementById('musuko-lock').style.display = 'flex';
+    document.getElementById('musuko-main').style.display = 'none';
+    setTimeout(() => document.getElementById('musuko-pw-input').focus(), 100);
+  }
+}
+
+function initMusukoContent(defaultTab) {
+  defaultTab = defaultTab || 'spending';
+  // 支出カレンダー初期化
+  const now = new Date();
+  if (now.getDate() <= 26) {
+    spendMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    spendYear  = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+  } else { spendYear = now.getFullYear(); spendMonth = now.getMonth(); }
+  // 予算・決算初期化
+  budgetYear = spendYear; budgetMonth = spendMonth;
+  budgetYearDisp = now.getFullYear();
+  // 凡例生成
+  const legendArea = document.getElementById('spend-legend-area');
+  if (legendArea) {
+    legendArea.innerHTML = Object.entries(CAT_LABELS).map(([k,v]) =>
+      `<span class="spend-legend" style="--lc:${CAT_COLORS[k]}">${v}</span>`).join('');
+  }
+  // income読み込み
+  const saved = localStorage.getItem(SPEND_INCOME_KEY);
+  if (saved) { const el = document.getElementById('spend-income'); if(el) el.value = saved; }
+  const savedB = _budgetSettings.income || localStorage.getItem(BUDGET_INCOME_LS) || '';
+  if (savedB) { const el = document.getElementById('budget-income-input'); if(el) el.value = savedB; }
+  // cat select初期化
+  ['spend-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.options.length) el.innerHTML = buildCatOptions('food');
+  });
+  switchMusukoTab(defaultTab);
+}
+
+function switchMusukoTab(tab) {
+  ['spending','monthly','budget','yearly'].forEach(t => {
+    const sec = document.getElementById('msec-' + t);
+    const btn = document.getElementById('mtab-' + t);
+    if (sec) sec.style.display = t === tab ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  if (tab === 'spending') { renderSpendCal(); renderSpendList(); }
+  if (tab === 'monthly')  renderBudgetMonthly();
+  if (tab === 'budget')   renderBudgetSettings();
+  if (tab === 'yearly')   renderBudgetYearly();
+}
+
+// 先月残高計算（先月の収入 − 先月の支出）
+function calcPrevMonthBalance() {
+  let prevMonth = budgetMonth - 1;
+  let prevYear  = budgetYear;
+  if (prevMonth < 0) { prevMonth = 11; prevYear--; }
+  const income = Number(_budgetSettings.income || 0);
+  if (!income) return null;
+  const prevItems = spendGetCycleItems(prevYear, prevMonth);
+  const prevTotal = prevItems.reduce((s, i) => s + Number(i.amount), 0);
+  return income - prevTotal;
+}
+
+
+// 先月残高・カテゴリメモ編集
+const FB_PREV_BALANCE = `${FB_ROOT}/prev_balance`;
+const FB_CAT_MEMOS    = `${FB_ROOT}/cat_memos`;
+let _prevBalances  = {};
+let _catMemos      = {};
+let _catMemoVisible = false;
+
+function setupPrevBalanceListener() {
+  db.ref(FB_PREV_BALANCE).on('value', snap => {
+    _prevBalances = snap.val() || {};
+    if (currentPage === 'musuko' && sessionStorage.getItem(MUSUKO_UNLOCKED_KEY) === '1') renderBudgetMonthly();
+  });
+  db.ref(FB_CAT_MEMOS).on('value', snap => {
+    _catMemos = snap.val() || {};
+  });
+}
+
+function prevBalKey(y, m)      { return `${y}-${m}`; }
+function catMemoKey(y, m, cat) { return `${y}-${m}-${cat}`; }
+
+function togglePrevBalEdit() {
+  const edit = document.getElementById('bsum-prev-balance-edit');
+  const show = edit.style.display !== 'flex';
+  edit.style.display = show ? 'flex' : 'none';
+  if (show) {
+    const cur = _prevBalances[prevBalKey(budgetYear, budgetMonth)];
+    document.getElementById('prev-balance-input').value = cur !== undefined ? cur : '';
+    document.getElementById('prev-balance-input').focus();
+  }
+}
+
+function savePrevBalance() {
+  const raw = document.getElementById('prev-balance-input').value;
+  const val = raw === '' ? null : parseInt(raw);
+  db.ref(`${FB_PREV_BALANCE}/${prevBalKey(budgetYear, budgetMonth)}`).set(val).then(() => {
+    togglePrevBalEdit();
+    showToast('先月残高を保存しました');
+  });
+}
+
+function toggleIncomeEdit() {
+  const edit = document.getElementById('bsum-income-edit');
+  const show = edit.style.display !== 'flex';
+  edit.style.display = show ? 'flex' : 'none';
+  if (show) {
+    document.getElementById('budget-income-monthly-input').value = _budgetSettings.income || '';
+    document.getElementById('budget-income-monthly-input').focus();
+  }
+}
+
+function saveIncomeFromMonthly() {
+  const val = parseInt(document.getElementById('budget-income-monthly-input').value);
+  if (!isNaN(val)) {
+    budgetSaveIncome(val);
+    const si = document.getElementById('spend-income');
+    if (si) { si.value = val; spendUpdateIncome(val); }
+  }
+  toggleIncomeEdit();
+  renderBudgetMonthly();
+  showToast('月収を保存しました');
+}
+
+function toggleCatMemo() {
+  _catMemoVisible = !_catMemoVisible;
+  const btn = document.getElementById('cat-memo-toggle-btn');
+  if (btn) btn.textContent = _catMemoVisible ? '📝 メモ非表示' : '✏️ メモ入力';
+  renderBudgetMonthly();
+}
+
+function saveCatMemo(cat, val) {
+  db.ref(`${FB_CAT_MEMOS}/${catMemoKey(budgetYear, budgetMonth, cat)}`).set(val || null);
+}
+
+function printMonthly() {
+  document.title = `月次決算 ${budgetYear}年${budgetMonth+1}月`;
+  window.print();
+  document.title = '家族のページ 🏠';
+}
+
+const BUDGET_PW           = '13240622Ko';
+const BUDGET_UNLOCKED_KEY = 'fam_budget_unlocked_v1';
+const FB_BUDGET           = `${FB_ROOT}/budget_settings`;
+const BUDGET_INCOME_LS    = 'fam_budget_income_v1';
+let budgetYear, budgetMonth, budgetYearDisp;
+let _budgetSettings = {};
+let _budgetChartInst = null, _yearlyChartInst = null;
+
+function setupBudgetListener() {
+  db.ref(FB_BUDGET).on('value', snap => {
+    _budgetSettings = snap.val() || {};
+    if (currentPage === 'musuko' && sessionStorage.getItem(MUSUKO_UNLOCKED_KEY) === '1') {
+      renderBudgetTab();
+    }
+  });
+}
+
+function checkBudgetPw() {
+  const v = document.getElementById('budget-pw-input').value;
+  if (v === BUDGET_PW) {
+    sessionStorage.setItem(BUDGET_UNLOCKED_KEY, '1');
+    document.getElementById('budget-lock').style.display = 'none';
+    document.getElementById('budget-main').style.display = 'block';
+    renderBudgetTab();
+  } else {
+    document.getElementById('budget-pw-error').textContent = 'パスワードが違います';
+    document.getElementById('budget-pw-input').value = '';
+    document.getElementById('budget-pw-input').focus();
+  }
+}
+
+function initBudgetPage() {
+  const now = new Date();
+  if (now.getDate() <= 26) {
+    budgetMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    budgetYear  = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+  } else {
+    budgetYear  = now.getFullYear();
+    budgetMonth = now.getMonth();
+  }
+  budgetYearDisp = now.getFullYear();
+  if (sessionStorage.getItem(BUDGET_UNLOCKED_KEY) === '1') {
+    document.getElementById('budget-lock').style.display = 'none';
+    document.getElementById('budget-main').style.display = 'block';
+    renderBudgetTab();
+  } else {
+    document.getElementById('budget-lock').style.display = 'flex';
+    document.getElementById('budget-main').style.display = 'none';
+    setTimeout(() => document.getElementById('budget-pw-input').focus(), 100);
+  }
+}
+
+function switchBudgetTab(tab) {
+  ['monthly','budget','yearly'].forEach(t => {
+    document.getElementById('bsec-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('btab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'monthly') renderBudgetMonthly();
+  if (tab === 'budget')  renderBudgetSettings();
+  if (tab === 'yearly')  renderBudgetYearly();
+}
+
+function renderBudgetTab() {
+  const activeTab = document.querySelector('#musuko-main .tab.active');
+  const tab = activeTab ? activeTab.id.replace('mtab-','') : 'monthly';
+  if (tab === 'monthly') renderBudgetMonthly();
+  if (tab === 'budget')  renderBudgetSettings();
+  if (tab === 'yearly')  renderBudgetYearly();
+}
+
+function budgetChangeMonth(dir) {
+  budgetMonth += dir;
+  if (budgetMonth > 11) { budgetMonth = 0; budgetYear++; }
+  if (budgetMonth < 0)  { budgetMonth = 11; budgetYear--; }
+  renderBudgetMonthly();
+}
+
+function budgetChangeYear(dir) {
+  budgetYearDisp += dir;
+  renderBudgetYearly();
+}
+
+function renderBudgetMonthly() {
+  const start = spendCycleStart(budgetYear, budgetMonth);
+  const end   = spendCycleEnd(budgetYear, budgetMonth);
+  document.getElementById('budget-month-label').textContent =
+    `${budgetYear}年${budgetMonth+1}月 (${start.getMonth()+1}/${start.getDate()}〜${end.getMonth()+1}/${end.getDate()})`;
+
+  const income     = Number(_budgetSettings.income || 0);
+  const catBudgets = _budgetSettings.cats || {};
+  const cycleItems = spendGetCycleItems(budgetYear, budgetMonth);
+
+  const actuals = {};
+  Object.keys(CAT_LABELS).forEach(k => actuals[k] = 0);
+  cycleItems.forEach(i => { if (actuals[i.cat] !== undefined) actuals[i.cat] += Number(i.amount); else actuals[i.cat] = Number(i.amount); });
+
+  const totalActual = cycleItems.reduce((s, i) => s + Number(i.amount), 0);
+  const totalBudget = Object.values(catBudgets).reduce((s, v) => s + Number(v||0), 0);
+  const balance = income - totalActual;
+
+  // 先月残高（DBから取得、なければ自動計算）
+  const prevKey = prevBalKey(budgetYear, budgetMonth);
+  const storedPrev = _prevBalances[prevKey];
+  const prevBal = storedPrev !== undefined && storedPrev !== null
+    ? storedPrev
+    : calcPrevMonthBalance();
+  const prevEl = document.getElementById('bsum-prev-balance-display');
+  if (prevEl) {
+    if (prevBal === null) { prevEl.textContent = '—（月収未設定）'; prevEl.style.color = 'var(--muted)'; }
+    else {
+      const tag = storedPrev !== undefined ? '' : '（自動計算）';
+      prevEl.textContent = (prevBal>=0?'+':'') + `¥${prevBal.toLocaleString()} ${tag}`;
+      prevEl.style.color = prevBal>=0 ? '#5B8DD9' : 'var(--red)';
+    }
+  }
+
+  // 月収
+  document.getElementById('bsum-income').textContent = income ? `¥${income.toLocaleString()}` : '未設定（編集ボタンから設定）';
+  document.getElementById('bsum-actual').textContent = `¥${totalActual.toLocaleString()}`;
+  document.getElementById('bsum-budget').textContent = `¥${totalBudget.toLocaleString()}`;
+  const balEl = document.getElementById('bsum-balance');
+  if (!income) { balEl.textContent = '—'; balEl.style.color = 'var(--muted)'; }
+  else { balEl.textContent = (balance>=0?'+':'') + `¥${balance.toLocaleString()}`; balEl.style.color = balance>=0?'var(--green)':'var(--red)'; }
+
+  // カテゴリ別行（メモ入力対応）
+  const rows = document.getElementById('bcat-rows');
+  rows.innerHTML = '';
+  Object.entries(CAT_LABELS).forEach(([key, label]) => {
+    const actual = actuals[key]||0;
+    const budget = Number(catBudgets[key]||0);
+    if (actual===0 && budget===0 && !_catMemoVisible) return;
+    const pct  = budget>0 ? Math.min((actual/budget)*100,100) : 0;
+    const over = budget>0 && actual>budget;
+    const diff = budget>0 ? actual-budget : null;
+    const diffHtml = diff!==null
+      ? `<span style="color:${diff>0?'var(--red)':'var(--green)'};margin-left:4px">${diff>0?'▲':'▼'}¥${Math.abs(diff).toLocaleString()}</span>` : '';
+    const memoKey = catMemoKey(budgetYear, budgetMonth, key);
+    const memoVal = _catMemos[memoKey] || '';
+    const memoHtml = _catMemoVisible
+      ? `<div style="margin-top:6px;display:flex;gap:6px;align-items:center">
+          <input class="inv-form-input" placeholder="メモを入力..." value="${escHtml(memoVal)}"
+            style="flex:1;padding:6px 10px;font-size:0.78rem"
+            onchange="saveCatMemo('${key}', this.value)"
+            oninput="saveCatMemo('${key}', this.value)">
+        </div>`
+      : (memoVal ? `<div style="font-size:0.75rem;color:var(--muted);margin-top:4px">📝 ${escHtml(memoVal)}</div>` : '');
+
+    rows.innerHTML += `<div class="bcat-row">
+      <div class="bcat-row-header">
+        <div class="bcat-label"><div style="width:10px;height:10px;border-radius:3px;background:${CAT_COLORS[key]}"></div>${label}</div>
+        <div class="bcat-amounts">実績 ¥${actual.toLocaleString()} / 予算 ${budget?'¥'+budget.toLocaleString():'未設定'}${diffHtml}</div>
+      </div>
+      <div class="bcat-bar-bg"><div class="bcat-bar-fill${over?' bcat-over':''}" style="width:${pct}%;background:${CAT_COLORS[key]}"></div></div>
+      ${memoHtml}
+    </div>`;
+  });
+
+  // Chart.js
+  if (typeof Chart === 'undefined') return;
+  const cats = Object.keys(CAT_LABELS).filter(k => (actuals[k]||0)>0 || (catBudgets[k]||0)>0);
+  const ctx = document.getElementById('budget-chart').getContext('2d');
+  if (_budgetChartInst) _budgetChartInst.destroy();
+  _budgetChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: cats.map(k => CAT_LABELS[k]),
+      datasets: [
+        { label:'予算', data:cats.map(k=>Number(catBudgets[k]||0)), backgroundColor:'rgba(91,141,217,0.25)', borderColor:'#5B8DD9', borderWidth:2, borderRadius:4 },
+        { label:'実績', data:cats.map(k=>actuals[k]||0), backgroundColor:cats.map(k=>CAT_COLORS[k]+'BB'), borderColor:cats.map(k=>CAT_COLORS[k]), borderWidth:2, borderRadius:4 }
+      ]
+    },
+    options:{ responsive:true, plugins:{ legend:{position:'bottom',labels:{font:{size:11}}} }, scales:{ y:{beginAtZero:true,ticks:{callback:v=>'¥'+v.toLocaleString(),font:{size:10}}}, x:{ticks:{font:{size:10}}} } }
+  });
+}
+
+function renderBudgetSettings() {
+  const income = Number(_budgetSettings.income || '');
+  const el = document.getElementById('budget-income-input');
+  if (el && !el.matches(':focus')) el.value = income || '';
+  const catBudgets = _budgetSettings.cats || {};
+  const container = document.getElementById('budget-cat-inputs');
+  container.innerHTML = '';
+  Object.entries(CAT_LABELS).forEach(([key, label]) => {
+    const row = document.createElement('div');
+    row.className = 'budget-cat-input-row';
+    const inp = document.createElement('input');
+    inp.type = 'number'; inp.min = '0'; inp.placeholder = '0';
+    inp.value = catBudgets[key] || '';
+    inp.dataset.cat = key;
+    inp.addEventListener('input', () => budgetSaveCat(key, inp.value));
+    const lbl = document.createElement('label');
+    lbl.innerHTML = `<div style="width:10px;height:10px;border-radius:3px;background:${CAT_COLORS[key]};flex-shrink:0"></div>${label}`;
+    row.appendChild(lbl); row.appendChild(inp);
+    container.appendChild(row);
+  });
+  budgetUpdateTotal();
+}
+
+function budgetSaveIncome(val) {
+  localStorage.setItem(BUDGET_INCOME_LS, val);
+  db.ref(FB_BUDGET).set({ ..._budgetSettings, income: Number(val) });
+}
+
+function budgetSaveCat(key, val) {
+  const cats = { ...(_budgetSettings.cats||{}), [key]: Number(val) };
+  db.ref(FB_BUDGET).set({ ..._budgetSettings, cats });
+  budgetUpdateTotal();
+}
+
+function budgetUpdateTotal() {
+  const inputs = document.querySelectorAll('#budget-cat-inputs input[data-cat]');
+  let total = 0;
+  inputs.forEach(inp => total += Number(inp.value)||0);
+  const el = document.getElementById('budget-total-label');
+  if (el) el.textContent = `¥${total.toLocaleString()}`;
+}
+
+function renderBudgetYearly() {
+  document.getElementById('budget-year-label').textContent = `${budgetYearDisp}年`;
+  const months = Array.from({length:12},(_,i)=>i);
+  const totals = months.map(m => spendGetCycleItems(budgetYearDisp, m).reduce((s,i)=>s+Number(i.amount),0));
+  const income = Number(_budgetSettings.income||0);
+  const totalBudget = Object.values(_budgetSettings.cats||{}).reduce((s,v)=>s+Number(v||0),0);
+  const annualTotal = totals.reduce((s,v)=>s+v,0);
+
+  if (typeof Chart !== 'undefined') {
+    const ctx = document.getElementById('yearly-chart').getContext('2d');
+    if (_yearlyChartInst) _yearlyChartInst.destroy();
+    const datasets = [
+      { label:'実績支出', data:totals, backgroundColor:totals.map(v=>v>(totalBudget||income||Infinity)?'rgba(192,103,90,0.7)':'rgba(91,141,217,0.7)'), borderRadius:4, type:'bar' }
+    ];
+    if (totalBudget) datasets.push({ label:'予算', data:Array(12).fill(totalBudget), type:'line', borderColor:'#E8B84B', borderWidth:2, borderDash:[5,3], pointRadius:0, fill:false });
+    if (income) datasets.push({ label:'月収', data:Array(12).fill(income), type:'line', borderColor:'#7A9E7E', borderWidth:2, borderDash:[3,3], pointRadius:0, fill:false });
+    _yearlyChartInst = new Chart(ctx, {
+      type:'bar', data:{ labels:months.map(m=>`${m+1}月`), datasets },
+      options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}, scales:{ y:{beginAtZero:true,ticks:{callback:v=>'¥'+(v/10000).toFixed(0)+'万',font:{size:10}}}, x:{ticks:{font:{size:10}}} } }
+    });
+  }
+
+  const table = document.getElementById('yearly-table');
+  table.innerHTML = `<div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+    <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:10px">月別明細</div>
+    ${months.map(m => {
+      const v = totals[m]; const bal = income ? income-v : null;
+      return `<div class="yearly-row">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;color:var(--muted);width:36px">${m+1}月</div>
+        <div style="flex:1;font-size:0.88rem;color:var(--deep)">¥${v.toLocaleString()}</div>
+        ${bal!==null?`<div style="font-size:0.82rem;font-weight:700;color:${bal>=0?'var(--green)':'var(--red)'}">${bal>=0?'+':''}¥${bal.toLocaleString()}</div>`:''}
+      </div>`;
+    }).join('')}
+    <div style="display:flex;justify-content:space-between;padding:10px 0 0;border-top:2px solid var(--warm);margin-top:4px">
+      <span style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep)">年間合計</span>
+      <span style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:var(--red)">¥${annualTotal.toLocaleString()}</span>
+    </div>
+  </div>`;
+}
+
 if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
+  // カテゴリselectを動的生成
+  ['spend-cat','sedit-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = buildCatOptions('food');
+  });
   document.getElementById('family-lock').style.display = 'none';
   document.getElementById('page-home').classList.add('active');
   try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
