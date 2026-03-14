@@ -433,6 +433,14 @@
   .alexa-morning{background:#E8A44A} .alexa-lunch{background:#5A9E6F} .alexa-dinner{background:#6A7FBF}
   .alexa-btn:active{transform:scale(0.97);opacity:0.9}
 
+  /* ===== 予算カードスタイル ===== */
+  .budget-cat-card{background:white;border-radius:12px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06);border-top:3px solid #ccc;transition:box-shadow .15s}
+  .budget-cat-card:focus-within{box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+  .budget-cat-card-label{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--deep);font-weight:500;margin-bottom:8px}
+  .budget-cat-card-input{width:100%;border:none;border-bottom:2px solid var(--warm);outline:none;font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;color:var(--deep);padding:4px 0;background:transparent;text-align:right}
+  .budget-cat-card-input:focus{border-bottom-color:var(--amber)}
+  .budget-cat-card-yen{font-size:0.85rem;color:var(--muted);text-align:right;display:block;margin-bottom:2px}
+
   /* ===== 予算・決算 ===== */
   .bcat-row{margin-bottom:12px}
   .bcat-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
@@ -1173,23 +1181,45 @@
 
     <!-- 予算設定セクション -->
     <div id="msec-budget" class="page-body" style="display:none;padding-bottom:20px">
-      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:14px">
-        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:4px">💴 月収（手取り平均）</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="color:var(--muted)">¥</span>
-          <input id="budget-income-input" type="number" placeholder="例：250000"
-            style="border:none;border-bottom:2px solid var(--warm);outline:none;font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;color:var(--deep);width:100%;padding:4px 0;background:transparent"
-            oninput="budgetSaveIncome(this.value)">
+      <!-- 月ナビ -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <button onclick="budgetSettingsChangeMonth(-1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">←</button>
+        <div style="text-align:center">
+          <div id="budget-settings-month-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);font-weight:700"></div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">この月の予算を設定</div>
+        </div>
+        <button onclick="budgetSettingsChangeMonth(1)" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown);padding:4px 10px;border-radius:8px">→</button>
+      </div>
+
+      <!-- 月収 -->
+      <div style="background:linear-gradient(135deg,#FFF8EE,#FDF6EC);border:2px solid var(--amber);border-radius:14px;padding:14px;margin-bottom:14px">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:8px">💴 月収（手取り）</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1rem;color:var(--muted)">¥</span>
+          <input id="budget-income-input" type="number" placeholder="例：250000" min="0"
+            style="flex:1;border:none;border-bottom:2px solid var(--amber);outline:none;font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;color:var(--deep);padding:6px 0;background:transparent"
+            oninput="budgetSaveIncomeForMonth(this.value)">
         </div>
       </div>
-      <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);margin-bottom:12px">🎯 カテゴリ別　月次予算</div>
-        <div id="budget-cat-inputs"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--warm)">
-          <span style="font-size:0.82rem;color:var(--muted)">予算合計</span>
-          <span id="budget-total-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:#5B8DD9">¥0</span>
+
+      <!-- カテゴリ別予算カード -->
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;color:var(--muted);margin-bottom:8px">🎯 カテゴリ別 予算</div>
+      <div id="budget-cat-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+
+      <!-- 合計 -->
+      <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:0.75rem;color:var(--muted)">予算合計</div>
+          <div id="budget-total-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;font-weight:700;color:#5B8DD9">¥0</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:0.75rem;color:var(--muted)">月収との差</div>
+          <div id="budget-income-diff" style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;font-weight:700;color:var(--green)">—</div>
         </div>
       </div>
+
+      <!-- 前月からコピーボタン -->
+      <button onclick="copyBudgetFromPrevMonth()" style="width:100%;margin-top:10px;padding:11px;background:var(--warm);border:2px dashed var(--amber);border-radius:12px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--amber);cursor:pointer">📋 前月の予算をコピー</button>
     </div>
 
     <!-- 年間推移セクション -->
@@ -3628,6 +3658,16 @@ function setupBudgetListener() {
   });
 }
 
+function getBudgetForMonth(y, m) {
+  const key = budgetSettingsKey(y, m);
+  // 新形式: budget_settings/YYYY-M/{ income, cats }
+  if (_budgetSettings[key] && (_budgetSettings[key].cats || _budgetSettings[key].income)) {
+    return _budgetSettings[key];
+  }
+  // 旧形式後方互換: budget_settings/{ income, cats }
+  return { income: _budgetSettings.income || 0, cats: _budgetSettings.cats || {} };
+}
+
 function checkBudgetPw() {
   const v = document.getElementById('budget-pw-input').value;
   if (v === BUDGET_PW) {
@@ -3699,8 +3739,8 @@ function renderBudgetMonthly() {
   document.getElementById('budget-month-label').textContent =
     `${budgetYear}年${budgetMonth+1}月 (${start.getMonth()+1}/${start.getDate()}〜${end.getMonth()+1}/${end.getDate()})`;
 
-  const income     = Number(_budgetSettings.income || 0);
-  const catBudgets = _budgetSettings.cats || {};
+  const income     = Number(getBudgetForMonth(budgetYear, budgetMonth).income || _budgetSettings.income || 0);
+  const catBudgets = getBudgetForMonth(budgetYear, budgetMonth).cats || _budgetSettings.cats || {};
   const cycleItems = spendGetCycleItems(budgetYear, budgetMonth);
 
   const actuals = {};
@@ -3786,46 +3826,126 @@ function renderBudgetMonthly() {
   });
 }
 
+// 予算設定（月ごと）
+let budgetSettingsYear, budgetSettingsMonth;
+
+function budgetSettingsKey(y, m) { return `${y}-${m}`; }
+
+function getBudgetForMonth(y, m) {
+  const key = budgetSettingsKey(y, m);
+  return (_budgetSettings[key]) || { income: 0, cats: {} };
+}
+
+function budgetSettingsChangeMonth(dir) {
+  budgetSettingsMonth += dir;
+  if (budgetSettingsMonth > 11) { budgetSettingsMonth = 0; budgetSettingsYear++; }
+  if (budgetSettingsMonth < 0)  { budgetSettingsMonth = 11; budgetSettingsYear--; }
+  renderBudgetSettings();
+}
+
 function renderBudgetSettings() {
-  const income = Number(_budgetSettings.income || '');
+  // 予算設定ページの月ナビ初期化
+  if (budgetSettingsYear === undefined) {
+    budgetSettingsYear  = budgetYear;
+    budgetSettingsMonth = budgetMonth;
+  }
+  const start = spendCycleStart(budgetSettingsYear, budgetSettingsMonth);
+  const end   = spendCycleEnd(budgetSettingsYear, budgetSettingsMonth);
+  document.getElementById('budget-settings-month-label').textContent =
+    `${budgetSettingsYear}年${budgetSettingsMonth+1}月 (${start.getMonth()+1}/${start.getDate()}〜${end.getMonth()+1}/${end.getDate()})`;
+
+  const mdata = getBudgetForMonth(budgetSettingsYear, budgetSettingsMonth);
+  const income = Number(mdata.income || _budgetSettings.income || 0);
+  const catBudgets = mdata.cats || {};
+
   const el = document.getElementById('budget-income-input');
   if (el && !el.matches(':focus')) el.value = income || '';
-  const catBudgets = _budgetSettings.cats || {};
-  const container = document.getElementById('budget-cat-inputs');
-  container.innerHTML = '';
+
+  // カテゴリカード生成
+  const cards = document.getElementById('budget-cat-cards');
+  cards.innerHTML = '';
   Object.entries(CAT_LABELS).forEach(([key, label]) => {
-    const row = document.createElement('div');
-    row.className = 'budget-cat-input-row';
+    const card = document.createElement('div');
+    card.className = 'budget-cat-card';
+    card.style.borderTopColor = CAT_COLORS[key];
+
+    const lbl = document.createElement('div');
+    lbl.className = 'budget-cat-card-label';
+    lbl.innerHTML = `<div style="width:10px;height:10px;border-radius:50%;background:${CAT_COLORS[key]};flex-shrink:0"></div>${label}`;
+
+    const yen = document.createElement('span');
+    yen.className = 'budget-cat-card-yen';
+    yen.textContent = '¥';
+
     const inp = document.createElement('input');
     inp.type = 'number'; inp.min = '0'; inp.placeholder = '0';
+    inp.className = 'budget-cat-card-input';
     inp.value = catBudgets[key] || '';
     inp.dataset.cat = key;
-    inp.addEventListener('input', () => budgetSaveCat(key, inp.value));
-    const lbl = document.createElement('label');
-    lbl.innerHTML = `<div style="width:10px;height:10px;border-radius:3px;background:${CAT_COLORS[key]};flex-shrink:0"></div>${label}`;
-    row.appendChild(lbl); row.appendChild(inp);
-    container.appendChild(row);
+    inp.addEventListener('input', () => budgetSaveCatForMonth(budgetSettingsYear, budgetSettingsMonth, key, inp.value));
+
+    card.appendChild(lbl);
+    card.appendChild(yen);
+    card.appendChild(inp);
+    cards.appendChild(card);
   });
   budgetUpdateTotal();
 }
 
 function budgetSaveIncome(val) {
   localStorage.setItem(BUDGET_INCOME_LS, val);
-  db.ref(FB_BUDGET).set({ ..._budgetSettings, income: Number(val) });
+  // グローバルincomeも保存（後方互換）
+  db.ref(`${FB_BUDGET}/income`).set(Number(val));
 }
 
-function budgetSaveCat(key, val) {
-  const cats = { ...(_budgetSettings.cats||{}), [key]: Number(val) };
-  db.ref(FB_BUDGET).set({ ..._budgetSettings, cats });
+function budgetSaveIncomeForMonth(val) {
+  const key = budgetSettingsKey(budgetSettingsYear, budgetSettingsMonth);
+  const cur = _budgetSettings[key] || {};
+  db.ref(`${FB_BUDGET}/${key}`).set({ ...cur, income: Number(val) });
+  // 後方互換：グローバルincomeも更新
+  budgetSaveIncome(val);
+  budgetUpdateTotal();
+}
+
+function budgetSaveCatForMonth(y, m, cat, val) {
+  const key = budgetSettingsKey(y, m);
+  const cur = _budgetSettings[key] || {};
+  const cats = { ...(cur.cats || {}), [cat]: Number(val) };
+  db.ref(`${FB_BUDGET}/${key}`).set({ ...cur, cats });
   budgetUpdateTotal();
 }
 
 function budgetUpdateTotal() {
-  const inputs = document.querySelectorAll('#budget-cat-inputs input[data-cat]');
+  const inputs = document.querySelectorAll('#budget-cat-cards input[data-cat]');
   let total = 0;
-  inputs.forEach(inp => total += Number(inp.value)||0);
+  inputs.forEach(inp => total += Number(inp.value) || 0);
   const el = document.getElementById('budget-total-label');
   if (el) el.textContent = `¥${total.toLocaleString()}`;
+
+  const income = Number(document.getElementById('budget-income-input')?.value || 0);
+  const diffEl = document.getElementById('budget-income-diff');
+  if (diffEl) {
+    if (!income) { diffEl.textContent = '—'; diffEl.style.color = 'var(--muted)'; }
+    else {
+      const diff = income - total;
+      diffEl.textContent = (diff >= 0 ? '+' : '') + `¥${diff.toLocaleString()}`;
+      diffEl.style.color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+  }
+}
+
+function copyBudgetFromPrevMonth() {
+  let prevY = budgetSettingsYear, prevM = budgetSettingsMonth - 1;
+  if (prevM < 0) { prevM = 11; prevY--; }
+  const prevData = getBudgetForMonth(prevY, prevM);
+  if (!prevData.cats || Object.keys(prevData.cats).length === 0) {
+    showToast('前月の予算データがありません'); return;
+  }
+  const key = budgetSettingsKey(budgetSettingsYear, budgetSettingsMonth);
+  db.ref(`${FB_BUDGET}/${key}`).set({ ...prevData }).then(() => {
+    showToast(`${prevY}年${prevM+1}月の予算をコピーしました`);
+    renderBudgetSettings();
+  });
 }
 
 function renderBudgetYearly() {
