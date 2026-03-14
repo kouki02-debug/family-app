@@ -1134,7 +1134,15 @@ if (typeof pdfjsLib !== 'undefined') {
 
 // Firebase 初期化
 if (typeof firebase === 'undefined') {
-  alert('Firebaseの読み込みに失敗しました。インターネット接続を確認して再読み込みしてください。');
+  console.error('Firebase SDK not loaded');
+  document.getElementById('family-lock').innerHTML = `
+    <div style="background:var(--cream);border-radius:20px;padding:32px;text-align:center;max-width:320px">
+      <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+      <p style="font-family:'Zen Maru Gothic',sans-serif;color:var(--deep);margin-bottom:8px">読み込みに失敗しました</p>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">インターネット接続を確認して<br>再読み込みしてください</p>
+      <button onclick="location.reload()" style="padding:10px 24px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;cursor:pointer">再読み込み</button>
+    </div>`;
+  throw new Error('Firebase not loaded');
 }
 if (!firebase.apps.length) {
   firebase.initializeApp({
