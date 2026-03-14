@@ -1079,7 +1079,10 @@
     <div style="padding:0 16px 80px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--muted)">今月の支出一覧</div>
-        <button onclick="spendPrint()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--warm);border:2px solid var(--amber);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--amber);cursor:pointer">🖨️ 印刷</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="spendResetCycle()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:#FFE5E2;border:2px solid var(--red);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--red);cursor:pointer">🗑️ 全削除</button>
+          <button onclick="spendPrint()" style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--warm);border:2px solid var(--amber);border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--amber);cursor:pointer">🖨️ 印刷</button>
+        </div>
       </div>
       <div id="spend-list"></div>
     </div>
@@ -3156,6 +3159,21 @@ const SPEND_INCOME_KEY = 'fam_spend_income_v1';
 function spendUpdateIncome(val) {
   localStorage.setItem(SPEND_INCOME_KEY, val);
   spendRefreshBalance();
+}
+
+function spendDeleteItem(id) {
+  // 現在はrenderSpendListのaddEventListenerで直接処理
+}
+
+async function spendResetCycle() {
+  const start = spendCycleStart(spendYear, spendMonth);
+  const end   = spendCycleEnd(spendYear, spendMonth);
+  const label = `${start.getMonth()+1}/${start.getDate()}〜${end.getMonth()+1}/${end.getDate()}`;
+  if (!confirm(`【${label}】の支出データを全て削除しますか？\n\n※「毎月繰り返し」のデータも含めて削除されます。`)) return;
+  const cycleItems = spendGetCycleItems(spendYear, spendMonth);
+  const promises = cycleItems.map(item => spendDeleteFromDB(item.id));
+  await Promise.all(promises);
+  showToast(`${cycleItems.length}件のデータを削除しました`);
 }
 
 function spendRefreshBalance() {
