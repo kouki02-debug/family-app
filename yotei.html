@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>功稀の予定 📰</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FDF6EC;--warm:#F5E6D0;--amber:#D4956A;--deep:#4A2C1A;--green:#7A9E7E;--red:#C0675A;--text:#3D2B1F;--muted:#9A8070}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+header{background:var(--deep);padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+header h1{font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;color:var(--cream)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--deep);color:white;padding:10px 20px;border-radius:20px;font-size:0.85rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header><span style="font-size:1.4rem">📰</span><h1>功稀の予定</h1></header>
+
+<!-- 功稀の予定ページ -->
+<div class="page" id="page-yotei">
+  <!-- パスワードロック -->
+  <div id="yotei-lock" class="page-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px">
+    <div style="font-size:2.5rem">📰</div>
+    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.2rem;color:var(--deep)">功稀の予定</h2>
+    <p style="color:var(--muted);font-size:0.85rem">パスワードを入力してください</p>
+    <input type="password" id="yotei-pw-input" placeholder="••••••" maxlength="20"
+      style="padding:12px 14px;border:2px solid var(--warm);border-radius:10px;font-size:1.1rem;outline:none;text-align:center;letter-spacing:0.2em;width:200px;color:var(--text)"
+      onkeydown="if(event.key==='Enter') checkYoteiPw()">
+    <div id="yotei-pw-error" style="color:var(--red);font-size:0.82rem;min-height:16px"></div>
+    <button onclick="checkYoteiPw()" style="padding:12px 32px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;cursor:pointer">入る</button>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <div id="yotei-main" style="display:none">
+    <!-- ヘッダー情報 -->
+    <div style="padding:12px 16px 0">
+      <div id="yotei-info-bar" style="background:var(--warm);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div id="yotei-week-label" style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;color:var(--deep);font-weight:700">読み込み中...</div>
+          <div id="yotei-upload-date" style="font-size:0.72rem;color:var(--muted);margin-top:2px"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div id="yotei-next-update" style="font-size:0.72rem;color:var(--muted);text-align:right"></div>
+          <button id="yotei-admin-upload-btn" style="display:none;padding:7px 12px;background:var(--amber);color:white;border:none;border-radius:8px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;cursor:pointer" onclick="document.getElementById('yotei-file-input').click()">🖼️ 画像更新</button>
+          <input type="file" id="yotei-file-input" accept="image/*" multiple style="display:none" onchange="yoteiUploadImages(this)">
+        </div>
+      </div>
+    </div>
+
+    <!-- PDFページ表示エリア -->
+    <div id="yotei-loading" style="text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:10px">📄</div>
+      <div style="font-size:0.88rem">週報を読み込んでいます...</div>
+    </div>
+    <div id="yotei-no-content" style="display:none;text-align:center;padding:40px 20px">
+      <div style="font-size:3rem;margin-bottom:12px">📭</div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:6px">まだ週報がありません</div>
+      <div style="font-size:0.82rem;color:var(--muted)">毎週日曜19時に更新されます</div>
+    </div>
+    <div id="yotei-pages" style="padding:0 10px 80px;display:flex;flex-direction:column;gap:12px"></div>
+
+    <!-- ページナビ -->
+    <div id="yotei-page-nav" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(74,44,26,0.85);border-radius:20px;padding:8px 16px;display:flex;align-items:center;gap:12px;z-index:60">
+      <button onclick="yoteiPrevPage()" style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;padding:0 4px">‹</button>
+      <span id="yotei-page-indicator" style="color:white;font-size:0.82rem;font-family:'Zen Maru Gothic',sans-serif;white-space:nowrap">1/1</span>
+      <button onclick="yoteiNextPage()" style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;padding:0 4px">›</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey:"AIzaSyARvvHwazgHUjbBidZ1wBRIncBToZRFRDc",
+    authDomain:"family-app-61993.firebaseapp.com",
+    databaseURL:"https://family-app-61993-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"family-app-61993",
+    storageBucket:"family-app-61993.firebasestorage.app",
+    messagingSenderId:"623751517146",
+    appId:"1:623751517146:web:3f125c5c7498e39558e6e3"
+  });
+}
+const db = firebase.database();
+const storage = firebase.storage();
+const FB_ROOT = 'family-app-61993';
+const FB_YOTEI = `${FB_ROOT}/yotei`;
+const STORAGE_YOTEI_DIR = 'yotei/pages/';
+const YOTEI_PW = '13240622Ko';
+const YOTEI_UNLOCKED_KEY = 'fam_yotei_unlocked_v1';
+let _yoteiCurrentPage = 1;
+let _yoteiTotalPages = 0;
+let isAdmin = false;
+function pad(n){return String(n).padStart(2,'0');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent='✓ '+msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// 功稀の予定（週報PDF）
+// ============================================================
+
+function checkYoteiPw() {
+  try {
+    const v = document.getElementById('yotei-pw-input').value;
+    if (v === YOTEI_PW) {
+      sessionStorage.setItem(YOTEI_UNLOCKED_KEY, '1');
+      document.getElementById('yotei-lock').style.display = 'none';
+      document.getElementById('yotei-main').style.display = 'block';
+      loadYoteiContent();
+    } else {
+      document.getElementById('yotei-pw-error').textContent = 'パスワードが違います';
+      document.getElementById('yotei-pw-input').value = '';
+      document.getElementById('yotei-pw-input').focus();
+    }
+  } catch(e) {
+    console.error('checkYoteiPw error:', e);
+    alert('エラーが発生しました: ' + e.message);
+  }
+}
+
+function initYoteiPage() {
+  if (sessionStorage.getItem(YOTEI_UNLOCKED_KEY) === '1') {
+    document.getElementById('yotei-lock').style.display = 'none';
+    document.getElementById('yotei-main').style.display = 'block';
+    loadYoteiContent();
+  } else {
+    document.getElementById('yotei-lock').style.display = 'flex';
+    document.getElementById('yotei-main').style.display = 'none';
+    setTimeout(() => document.getElementById('yotei-pw-input').focus(), 100);
+  }
+}
+
+async function loadYoteiContent() {
+  try {
+    const uploadBtn = document.getElementById('yotei-admin-upload-btn');
+    if (uploadBtn) uploadBtn.style.display = (typeof isAdmin !== 'undefined' && isAdmin) ? 'block' : 'none';
+    document.getElementById('yotei-next-update').textContent = `次回更新: ${getNextSunday19()}`;
+
+    const snap = await db.ref(FB_YOTEI).once('value');
+    const meta = snap.val();
+    if (!meta || !meta.uploadedAt || !meta.pageUrls || meta.pageUrls.length === 0) {
+      showYoteiNoContent(); return;
+    }
+    const uploadedDate = new Date(meta.uploadedAt);
+    document.getElementById('yotei-week-label').textContent = getWeekLabel(uploadedDate);
+    document.getElementById('yotei-upload-date').textContent =
+      `更新日: ${uploadedDate.getFullYear()}/${uploadedDate.getMonth()+1}/${uploadedDate.getDate()} ${pad(uploadedDate.getHours())}:${pad(uploadedDate.getMinutes())}`;
+    showYoteiImages(meta.pageUrls);
+  } catch(e) {
+    console.error('Yotei load error:', e);
+    showYoteiNoContent();
+  }
+}
+
+function showYoteiImages(urls) {
+  document.getElementById('yotei-loading').style.display = 'none';
+  document.getElementById('yotei-no-content').style.display = 'none';
+  _yoteiTotalPages  = urls.length;
+  _yoteiCurrentPage = 1;
+
+  const container = document.getElementById('yotei-pages');
+  container.innerHTML = '';
+  urls.forEach((url, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.dataset.pageWrapper = i + 1;
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'width:100%;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);display:block';
+    img.alt = `週報 ${i+1}枚目`;
+    img.loading = 'lazy';
+    wrapper.appendChild(img);
+
+    if (urls.length > 1) {
+      const pnum = document.createElement('div');
+      pnum.style.cssText = 'text-align:center;font-size:0.72rem;color:var(--muted);padding:5px 0';
+      pnum.textContent = `${i+1} / ${urls.length}`;
+      wrapper.appendChild(pnum);
+    }
+    container.appendChild(wrapper);
+  });
+
+  const nav = document.getElementById('yotei-page-nav');
+  nav.style.display = urls.length > 1 ? 'flex' : 'none';
+  if (urls.length > 1) document.getElementById('yotei-page-indicator').textContent = `1/${urls.length}`;
+}
+
+function showYoteiNoContent() {
+  document.getElementById('yotei-loading').style.display = 'none';
+  document.getElementById('yotei-no-content').style.display = 'block';
+  document.getElementById('yotei-pages').innerHTML = '';
+  document.getElementById('yotei-page-nav').style.display = 'none';
+  document.getElementById('yotei-week-label').textContent = '週報なし';
+  document.getElementById('yotei-upload-date').textContent = '';
+}
+
+function yoteiPrevPage() {
+  if (_yoteiCurrentPage <= 1) return;
+  _yoteiCurrentPage--;
+  scrollToYoteiPage(_yoteiCurrentPage);
+}
+
+function yoteiNextPage() {
+  if (_yoteiCurrentPage >= _yoteiTotalPages) return;
+  _yoteiCurrentPage++;
+  scrollToYoteiPage(_yoteiCurrentPage);
+}
+
+function scrollToYoteiPage(num) {
+  const el = document.querySelector(`[data-page-wrapper="${num}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('yotei-page-indicator').textContent = `${num}/${_yoteiTotalPages}`;
+}
+
+// 管理者：画像アップロード（最大5枚）
+async function yoteiUploadImages(input) {
+  const files = Array.from(input.files);
+  if (files.length === 0) return;
+  if (files.length > 5) { alert('画像は最大5枚までです。\n選択し直してください。'); input.value = ''; return; }
+
+  const btn = document.getElementById('yotei-admin-upload-btn');
+  btn.textContent = '⏳ アップロード中...'; btn.disabled = true;
+  document.getElementById('yotei-loading').style.display = 'block';
+  document.getElementById('yotei-pages').innerHTML = '';
+  document.getElementById('yotei-no-content').style.display = 'none';
+
+  try {
+    // 旧画像を削除
+    try {
+      const oldSnap = await db.ref(`${FB_YOTEI}/pageCount`).once('value');
+      const oldCount = Number(oldSnap.val()) || 0;
+      for (let i = 1; i <= oldCount; i++) {
+        try { await storage.ref(`${STORAGE_YOTEI_DIR}page_${i}`).delete(); } catch(e) {}
+      }
+    } catch(e) {}
+
+    // 新画像をアップロード
+    const pageUrls = [];
+    for (let i = 0; i < files.length; i++) {
+      btn.textContent = `⏳ ${i+1}/${files.length}枚目...`;
+      const file = files[i];
+      const ext  = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+      const ref  = storage.ref(`${STORAGE_YOTEI_DIR}page_${i+1}.${ext}`);
+      await ref.put(file, { contentType: file.type });
+      const url = await ref.getDownloadURL();
+      pageUrls.push(url);
+    }
+
+    await db.ref(FB_YOTEI).set({
+      uploadedAt: Date.now(),
+      pageCount: files.length,
+      pageUrls
+    });
+
+    showToast(`✅ ${files.length}枚の画像を更新しました`);
+    input.value = '';
+    loadYoteiContent();
+  } catch(e) {
+    console.error('Upload error:', e);
+    alert('アップロードに失敗しました:\n' + e.message);
+    showYoteiNoContent();
+  } finally {
+    btn.textContent = '🖼️ 画像更新'; btn.disabled = false;
+    document.getElementById('yotei-loading').style.display = 'none';
+  }
+}
+
+function getNextSunday19() {
+  const now = new Date();
+  const d = new Date(now);
+  const diff = (7 - d.getDay()) % 7 || 7;
+  d.setDate(d.getDate() + diff);
+  d.setHours(19, 0, 0, 0);
+  if (d <= now) d.setDate(d.getDate() + 7);
+  return `${d.getMonth()+1}/${d.getDate()}（日）19:00`;
+}
+
+function getWeekLabel(date) {
+  const d = new Date(date);
+  const mon = new Date(d); mon.setDate(d.getDate() - d.getDay() + 1);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  return `${mon.getMonth()+1}/${mon.getDate()}〜${sun.getMonth()+1}/${sun.getDate()} 週報`;
+}
+
+// INIT
+if (sessionStorage.getItem(YOTEI_UNLOCKED_KEY)==='1') {
+  document.getElementById('yotei-lock').style.display='none';
+  document.getElementById('yotei-main').style.display='block';
+  loadYoteiContent();
+} else {
+  setTimeout(()=>document.getElementById('yotei-pw-input').focus(),100);
+}
+</script>
+</body>
+</html>
