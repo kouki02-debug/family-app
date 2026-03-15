@@ -1296,6 +1296,50 @@
   </div>
 </div>
 
+<!-- 支出編集モーダル -->
+<div id="spend-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(74,44,26,0.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:var(--cream);border-radius:20px;padding:24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto">
+    <h3 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:16px">✏️ 支出を編集</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div class="inv-form-label">項目名</div>
+        <input id="sedit-name" class="inv-form-input" maxlength="20">
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1">
+          <div class="inv-form-label">日</div>
+          <input id="sedit-day" class="inv-form-input" type="number" min="1" max="31">
+        </div>
+        <div style="flex:2">
+          <div class="inv-form-label">金額</div>
+          <input id="sedit-amount" class="inv-form-input" type="number" min="0">
+        </div>
+      </div>
+      <div>
+        <div class="inv-form-label">カテゴリ</div>
+        <select id="sedit-cat" class="inv-form-select"></select>
+      </div>
+      <div>
+        <div class="inv-form-label">支払い頻度</div>
+        <select id="sedit-freq" class="inv-form-select" onchange="seditFreqChange()">
+          <option value="once">1回のみ</option>
+          <option value="monthly">毎月 🔁</option>
+          <option value="yearly">毎年（年1回）🗓️</option>
+        </select>
+      </div>
+      <div id="sedit-enddate-row">
+        <div class="inv-form-label">最終支払日（空白＝無期限）</div>
+        <input id="sedit-enddate" class="inv-form-input" type="month" placeholder="例：2027-03">
+      </div>
+    </div>
+    <input type="hidden" id="sedit-id">
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="spendEditSave()" style="flex:1;padding:11px;background:var(--green);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;cursor:pointer">保存</button>
+      <button onclick="spendEditClose()" style="padding:11px 16px;background:var(--warm);color:var(--muted);border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.88rem;cursor:pointer">キャンセル</button>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div id="lightbox">
   <button id="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -1494,7 +1538,7 @@ function setupFirebaseListeners() {
   setupSpendListener();
   // 予算設定
   setupBudgetListener();
-  // 先月残高・カテゴリメモ
+  // 月次決算データ（localStorageから読み込み）
   setupPrevBalanceListener();
 }
 
@@ -3336,64 +3380,88 @@ function renderSpendList() {
   const cycleItems = spendGetCycleItems(spendYear, spendMonth);
   const list = document.getElementById('spend-list');
   list.innerHTML = '';
+
   if (cycleItems.length === 0) {
     list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:0.85rem">支出がありません</div>';
     return;
   }
+
+  // カテゴリ別にグループ化（CAT_LABELSの順序に従う）
+  const grouped = {};
+  Object.keys(CAT_LABELS).forEach(k => { grouped[k] = []; });
   cycleItems.forEach(item => {
-    const d = new Date(item._dateStr + 'T00:00:00');
-    const dateLabel = `${d.getMonth()+1}月${d.getDate()}日`;
+    const key = item.cat && grouped[item.cat] !== undefined ? item.cat : 'unknown';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(item);
+  });
 
-    const row = document.createElement('div');
-    row.className = 'spend-item-row';
+  Object.entries(CAT_LABELS).forEach(([catKey, catLabel]) => {
+    const items = grouped[catKey];
+    if (!items || items.length === 0) return;
 
-    const dot = document.createElement('div');
-    dot.className = 'spend-item-dot';
-    dot.style.background = CAT_COLORS[item.cat] || '#999';
+    const catTotal = items.reduce((s, i) => s + Number(i.amount), 0);
 
-    const info = document.createElement('div');
-    info.className = 'spend-item-info';
-    const freqLabel = item.yearly ? '🗓️毎年' : item.repeat ? '🔁毎月' : '';
-    const enddateLabel = item.enddate ? `　〜${item.enddate}まで` : '';
-    info.innerHTML = `<div class="spend-item-name">${escHtml(item.name)}</div>
-      <div class="spend-item-meta">${dateLabel}　${CAT_LABELS[item.cat] || item.cat}${freqLabel ? '　' + freqLabel : ''}${enddateLabel}</div>`;
+    // カテゴリヘッダー
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 4px 4px;margin-top:6px';
+    header.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${CAT_COLORS[catKey]};flex-shrink:0"></div>
+        <span style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;font-weight:700;color:var(--deep)">${catLabel}</span>
+        <span style="font-size:0.72rem;color:var(--muted)">${items.length}件</span>
+      </div>
+      <span style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.9rem;font-weight:700;color:${CAT_COLORS[catKey]}">¥${catTotal.toLocaleString()}</span>`;
+    list.appendChild(header);
 
-    const amount = document.createElement('div');
-    amount.className = 'spend-item-amount';
-    amount.textContent = `¥${Number(item.amount).toLocaleString()}`;
+    // カテゴリ内の各アイテム
+    items.forEach(item => {
+      const d = new Date(item._dateStr + 'T00:00:00');
+      const dateLabel = `${d.getMonth()+1}/${d.getDate()}`;
+      const freqLabel = item.yearly ? '🗓️' : item.repeat ? '🔁' : '';
+      const enddateLabel = item.enddate ? ` 〜${item.enddate}` : '';
 
-    // 編集ボタン
-    const editBtn = document.createElement('button');
-    editBtn.className = 'spend-item-del';
-    editBtn.title = '編集';
-    editBtn.textContent = '✏️';
-    editBtn.style.color = 'var(--green)';
-    editBtn.addEventListener('click', () => spendEditOpen(item));
+      const row = document.createElement('div');
+      row.className = 'spend-item-row';
+      row.style.marginBottom = '4px';
+      row.style.borderLeft = `3px solid ${CAT_COLORS[item.cat] || '#ccc'}`;
 
-    // 移動ボタン
-    const moveBtn = document.createElement('button');
-    moveBtn.className = 'spend-item-del';
-    moveBtn.title = '別の月へ移動';
-    moveBtn.textContent = '↪';
-    moveBtn.style.color = 'var(--amber)';
-    moveBtn.addEventListener('click', () => spendMoveItem(item));
+      const info = document.createElement('div');
+      info.className = 'spend-item-info';
+      info.innerHTML = `
+        <div class="spend-item-name">${escHtml(item.name)}</div>
+        <div class="spend-item-meta">${dateLabel}${freqLabel ? '　' + freqLabel : ''}${enddateLabel}</div>`;
 
-    // 削除ボタン
-    const delBtn = document.createElement('button');
-    delBtn.className = 'spend-item-del';
-    delBtn.textContent = '✕';
-    delBtn.addEventListener('click', () => {
-      if (!confirm(`「${item.name}」を削除しますか？`)) return;
-      spendDeleteFromDB(item.id);
+      const amount = document.createElement('div');
+      amount.className = 'spend-item-amount';
+      amount.textContent = `¥${Number(item.amount).toLocaleString()}`;
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'spend-item-del';
+      editBtn.title = '編集'; editBtn.textContent = '✏️';
+      editBtn.style.color = 'var(--green)';
+      editBtn.addEventListener('click', () => spendEditOpen(item));
+
+      const moveBtn = document.createElement('button');
+      moveBtn.className = 'spend-item-del';
+      moveBtn.title = '移動'; moveBtn.textContent = '↪';
+      moveBtn.style.color = 'var(--amber)';
+      moveBtn.addEventListener('click', () => spendMoveItem(item));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'spend-item-del';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', () => {
+        if (!confirm(`「${item.name}」を削除しますか？`)) return;
+        spendDeleteFromDB(item.id);
+      });
+
+      row.appendChild(info);
+      row.appendChild(amount);
+      row.appendChild(editBtn);
+      row.appendChild(moveBtn);
+      row.appendChild(delBtn);
+      list.appendChild(row);
     });
-
-    row.appendChild(dot);
-    row.appendChild(info);
-    row.appendChild(amount);
-    row.appendChild(editBtn);
-    row.appendChild(moveBtn);
-    row.appendChild(delBtn);
-    list.appendChild(row);
   });
 }
 
@@ -3643,20 +3711,17 @@ function calcPrevMonthBalance() {
 
 
 // 先月残高・カテゴリメモ編集
-const FB_PREV_BALANCE = `${FB_ROOT}/prev_balance`;
-const FB_CAT_MEMOS    = `${FB_ROOT}/cat_memos`;
+// 月次決算データはlocalStorageのみ（同期なし）
+const LS_PREV_BALANCE = 'fam_prev_balance_v1';
+const LS_CAT_MEMOS    = 'fam_cat_memos_v1';
 let _prevBalances  = {};
 let _catMemos      = {};
 let _catMemoVisible = false;
 
 function setupPrevBalanceListener() {
-  db.ref(FB_PREV_BALANCE).on('value', snap => {
-    _prevBalances = snap.val() || {};
-    if (currentPage === 'musuko' && sessionStorage.getItem(MUSUKO_UNLOCKED_KEY) === '1') renderBudgetMonthly();
-  });
-  db.ref(FB_CAT_MEMOS).on('value', snap => {
-    _catMemos = snap.val() || {};
-  });
+  // localStorageから読み込み（Firebaseは使わない）
+  try { _prevBalances = JSON.parse(localStorage.getItem(LS_PREV_BALANCE)) || {}; } catch { _prevBalances = {}; }
+  try { _catMemos     = JSON.parse(localStorage.getItem(LS_CAT_MEMOS))    || {}; } catch { _catMemos = {}; }
 }
 
 function prevBalKey(y, m)      { return `${y}-${m}`; }
@@ -3676,10 +3741,13 @@ function togglePrevBalEdit() {
 function savePrevBalance() {
   const raw = document.getElementById('prev-balance-input').value;
   const val = raw === '' ? null : parseInt(raw);
-  db.ref(`${FB_PREV_BALANCE}/${prevBalKey(budgetYear, budgetMonth)}`).set(val).then(() => {
-    togglePrevBalEdit();
-    showToast('先月残高を保存しました');
-  });
+  const key = prevBalKey(budgetYear, budgetMonth);
+  if (val === null) delete _prevBalances[key];
+  else _prevBalances[key] = val;
+  localStorage.setItem(LS_PREV_BALANCE, JSON.stringify(_prevBalances));
+  togglePrevBalEdit();
+  renderBudgetMonthly();
+  showToast('先月残高を保存しました');
 }
 
 function toggleIncomeEdit() {
@@ -3712,7 +3780,10 @@ function toggleCatMemo() {
 }
 
 function saveCatMemo(cat, val) {
-  db.ref(`${FB_CAT_MEMOS}/${catMemoKey(budgetYear, budgetMonth, cat)}`).set(val || null);
+  const key = catMemoKey(budgetYear, budgetMonth, cat);
+  if (!val) delete _catMemos[key];
+  else _catMemos[key] = val;
+  localStorage.setItem(LS_CAT_MEMOS, JSON.stringify(_catMemos));
 }
 
 function printMonthly() {
