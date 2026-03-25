@@ -3,53 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>家族のページ 🏠</title>
+<title>家族のページ 🌸</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cream: #FDF6EC;
-    --warm: #F5E6D0;
-    --amber: #D4956A;
-    --brown: #8B5E3C;
-    --deep: #4A2C1A;
+    /* おかめ桜カラーパレット */
+    --cream: #FDF0F5;       /* 花びら白みがかったピンク */
+    --warm:  #F9DCE8;       /* 淡い桜色 */
+    --amber: #D4608A;       /* おかめ桜の深いピンク */
+    --brown: #8B3A62;       /* 幹の深紫がかった茶 */
+    --deep:  #4A1535;       /* 深い夕桜の暗紫 */
     --green: #7A9E7E;
-    --red: #C0675A;
-    --blue: #6080B0;
-    --text: #3D2B1F;
-    --muted: #9A8070;
+    --red:   #C0675A;
+    --blue:  #6080B0;
+    --text:  #3D1530;
+    --muted: #B07898;
+    /* 追加アクセント */
+    --petal1: #F2A8C4;      /* 明るい花びら */
+    --petal2: #E8729F;      /* 中間のピンク */
+    --bark:   #6B3050;      /* 幹色 */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans JP', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* ===== 桜の花びら背景 ===== */
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 10% 0%, rgba(242,168,196,0.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 10%, rgba(212,96,138,0.2) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 100%, rgba(232,114,159,0.15) 0%, transparent 50%),
+      linear-gradient(160deg, #FDF0F5 0%, #F9E4EF 40%, #FEF4F8 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '🌸';
+    position: fixed;
+    font-size: 120px;
+    opacity: 0.04;
+    bottom: -20px;
+    right: -20px;
+    pointer-events: none;
+    z-index: 0;
+    line-height: 1;
+  }
+
+  /* 花びら SVG 背景装飾 */
+  .sakura-deco {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.07;
+  }
+  .sakura-deco.top-left  { top: 60px; left: -10px; font-size: 80px; transform: rotate(-20deg); }
+  .sakura-deco.top-right { top: 80px; right: -5px;  font-size: 60px; transform: rotate(15deg); }
+  .sakura-deco.mid-left  { top: 45%; left: -15px; font-size: 100px; transform: rotate(30deg); }
+
+  /* すべてのコンテンツを前面に */
+  header, .bottom-nav, .page, #family-lock, #toast, #notif-banner {
+    position: relative;
+    z-index: 1;
+  }
 
   /* ===== HEADER ===== */
   header {
-    background: var(--deep); padding: 14px 18px;
+    background: linear-gradient(135deg, var(--deep) 0%, var(--bark) 100%);
+    padding: 14px 18px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 12px rgba(74,44,26,0.3);
+    box-shadow: 0 2px 16px rgba(74,21,53,0.4);
+  }
+  header::after {
+    content: '🌸';
+    position: absolute;
+    right: 70px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    opacity: 0.35;
+    pointer-events: none;
   }
   .header-left { display: flex; align-items: center; gap: 10px; }
-  #header-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 1.15rem; color: var(--cream); }
+  #header-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 1.15rem; color: #FFF0F7; }
   .back-btn {
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
-    color: var(--cream); padding: 6px 12px; border-radius: 20px;
+    color: #FFF0F7; padding: 6px 12px; border-radius: 20px;
     font-family: 'Zen Maru Gothic', sans-serif; font-size: 0.8rem;
     cursor: pointer; display: none; transition: background 0.2s;
   }
   .back-btn:hover { background: rgba(255,255,255,0.28); }
   .admin-btn {
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-    color: var(--cream); padding: 6px 14px; border-radius: 20px;
+    color: #FFF0F7; padding: 6px 14px; border-radius: 20px;
     font-family: 'Zen Maru Gothic', sans-serif; font-size: 0.8rem;
     cursor: pointer; transition: all 0.2s;
   }
   .admin-btn:hover { background: rgba(255,255,255,0.25); }
-  .admin-btn.active { background: var(--amber); border-color: var(--amber); }
+  .admin-btn.active { background: var(--petal2); border-color: var(--petal2); }
 
   /* ===== BOTTOM NAV (home) ===== */
   .bottom-nav {
-    display: flex; background: var(--warm);
-    border-bottom: 3px solid var(--amber);
+    display: flex;
+    background: rgba(249,220,232,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 3px solid var(--petal2);
   }
   .bnav-btn {
     flex: 1; padding: 13px 6px;
@@ -62,7 +128,7 @@
     color: var(--deep); background: var(--cream); font-weight: 700;
     border-bottom: 3px solid var(--amber); margin-bottom: -3px;
   }
-  .bnav-btn:hover:not(.active) { background: #EDD5B0; }
+  .bnav-btn:hover:not(.active) { background: rgba(242,168,196,0.3); }
 
   /* ===== PAGES ===== */
   .page { display: none; }
@@ -86,16 +152,26 @@
   /* ===== HOME PAGE (app grid) ===== */
   .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
   .app-card {
-    background: white; border-radius: 16px; padding: 22px 12px;
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(6px);
+    border-radius: 18px; padding: 22px 12px;
     display: flex; flex-direction: column; align-items: center; gap: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07); cursor: pointer;
-    border: 2px solid transparent; transition: all 0.2s;
+    box-shadow: 0 3px 14px rgba(212,96,138,0.12);
+    cursor: pointer;
+    border: 2px solid rgba(242,168,196,0.4);
+    transition: all 0.22s;
   }
-  .app-card:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+  .app-card:hover {
+    border-color: var(--petal2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(212,96,138,0.22);
+    background: rgba(255,240,247,0.95);
+  }
   .app-card-icon { font-size: 2.4rem; }
   .app-card-label { font-family: 'Zen Maru Gothic', sans-serif; font-size: 0.9rem; color: var(--deep); font-weight: 700; text-align: center; }
-  .app-card-soon { opacity: 0.45; cursor: default; pointer-events: none; position: relative; }
-  .app-card-soon:hover { transform: none !important; box-shadow: none !important; border-color: var(--warm) !important; }
+  .app-card-desc { font-size: 0.72rem; color: var(--muted); text-align: center; }
+  .app-card-soon { opacity: 0.45; cursor: default; pointer-events: none; }
+  .app-card-soon:hover { transform: none !important; }
   .soon-badge { font-size: 0.65rem; color: var(--muted); background: var(--warm); border-radius: 20px; padding: 2px 8px; letter-spacing: 0.05em; margin-top: 2px; }
 
   /* ===== BULLETIN BOARD ===== */
@@ -158,7 +234,7 @@
   .new-post-btn:hover { background: #EDD5B0; }
   .posts { display: flex; flex-direction: column; gap: 14px; }
   .post-card { background: white; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); overflow: hidden; animation: fadeUp 0.25s ease; }
-  .post-card-header { background: var(--deep); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .post-card-header { background: linear-gradient(135deg,var(--deep),var(--bark)); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
   .post-card-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 1rem; color: var(--cream); }
   .post-card-meta { font-size: 0.72rem; color: rgba(253,246,236,0.6); }
   .post-card-body { padding: 14px; }
@@ -280,7 +356,7 @@
   .rice-btn:hover { border-color:var(--green); color:var(--green); }
   .rice-btn.selected { border-color:var(--green); background:var(--green); color:white; }
   .order-section { padding:0 12px 14px; display:none; }
-  .order-btn { width:100%; padding:13px; background:var(--deep); color:var(--cream); border:none; border-radius:12px; font-family:'Zen Maru Gothic',sans-serif; font-size:1rem; cursor:pointer; transition:all 0.2s; }
+  .order-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--amber),var(--brown)); color:white; border:none; border-radius:12px; font-family:'Zen Maru Gothic',sans-serif; font-size:1rem; cursor:pointer; transition:all 0.2s; }
   .order-btn:hover { background:var(--brown); }
   .order-confirmed { margin:0 12px 14px; background:#EEF8EE; border:2px solid var(--green); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; animation:fadeUp 0.2s ease; }
   .conf-text { font-size:0.88rem; color:var(--green); font-weight:500; }
@@ -382,7 +458,7 @@
   .care-input:focus { border-color:var(--amber); }
   .care-memo { width:100%; padding:10px 12px; border:2px solid var(--warm); border-radius:10px; font-family:'Noto Sans JP',sans-serif; font-size:0.9rem; outline:none; resize:none; color:var(--text); min-height:70px; }
   .care-memo:focus { border-color:var(--amber); }
-  .care-submit { width:100%; padding:13px; background:var(--deep); color:var(--cream); border:none; border-radius:12px; font-family:'Zen Maru Gothic',sans-serif; font-size:1rem; cursor:pointer; transition:all 0.2s; }
+  .care-submit { width:100%; padding:13px; background:linear-gradient(135deg,var(--amber),var(--brown)); color:white; border:none; border-radius:12px; font-family:'Zen Maru Gothic',sans-serif; font-size:1rem; cursor:pointer; transition:all 0.2s; }
   .care-submit:hover { background:var(--brown); }
 
   /* booking cards */
@@ -409,7 +485,7 @@
   .care-service-admin-item { background:white; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
 
   /* TOAST */
-  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--deep); color:var(--cream); padding:12px 24px; border-radius:24px; font-family:'Zen Maru Gothic',sans-serif; font-size:0.9rem; z-index:9999; transition:transform 0.3s ease; white-space:nowrap; }
+  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:linear-gradient(135deg,var(--deep),var(--bark)); color:#FFF0F7; padding:12px 24px; border-radius:24px; font-family:'Zen Maru Gothic',sans-serif; font-size:0.9rem; z-index:9999; transition:transform 0.3s ease; white-space:nowrap; }
   #toast.show { transform:translateX(-50%) translateY(0); }
 
   /* 一括登録 */
@@ -549,18 +625,23 @@
 <body>
 
 <!-- 家族用ロック画面 -->
-<div id="family-lock" style="position:fixed;inset:0;background:var(--deep);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-  <div style="background:var(--cream);border-radius:24px;padding:40px 32px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-    <div style="font-size:3rem;margin-bottom:12px">🏠</div>
-    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;color:var(--deep);margin-bottom:8px">家族のページ</h2>
-    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:24px">パスワードを入力してください</p>
+<div id="family-lock" style="position:fixed;inset:0;background:linear-gradient(160deg,var(--deep) 0%,var(--bark) 60%,#7A2055 100%);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;">
+  <!-- 桜の装飾 -->
+  <div style="position:absolute;top:-10px;left:-10px;font-size:120px;opacity:0.08;transform:rotate(-15deg);pointer-events:none">🌸</div>
+  <div style="position:absolute;bottom:-20px;right:-10px;font-size:100px;opacity:0.08;transform:rotate(20deg);pointer-events:none">🌸</div>
+  <div style="position:absolute;top:30%;right:-5px;font-size:70px;opacity:0.06;transform:rotate(10deg);pointer-events:none">🌸</div>
+
+  <div style="background:rgba(255,240,247,0.96);backdrop-filter:blur(16px);border-radius:24px;padding:40px 32px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(74,21,53,0.5);border:1px solid rgba(242,168,196,0.3);">
+    <div style="font-size:3rem;margin-bottom:12px">🌸</div>
+    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;color:var(--deep);margin-bottom:6px">家族のページ</h2>
+    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:20px">おかめ桜のように、家族みんなで</p>
     <input type="password" id="family-pw-input" placeholder="••••••" maxlength="20"
-      style="width:100%;padding:12px 14px;border:2px solid var(--warm);border-radius:10px;font-size:1.1rem;outline:none;text-align:center;letter-spacing:0.2em;margin-bottom:10px;color:var(--text);"
+      style="width:100%;padding:12px 14px;border:2px solid var(--warm);border-radius:10px;font-size:1.1rem;outline:none;text-align:center;letter-spacing:0.2em;margin-bottom:10px;color:var(--text);background:white;"
       onkeydown="if(event.key==='Enter') checkFamilyPw()">
     <div id="family-pw-error" style="color:var(--red);font-size:0.82rem;min-height:18px;margin-bottom:10px"></div>
     <button onclick="checkFamilyPw()"
-      style="width:100%;padding:13px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;cursor:pointer;">
-      入る
+      style="width:100%;padding:13px;background:linear-gradient(135deg,var(--amber),var(--brown));color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;cursor:pointer;box-shadow:0 4px 12px rgba(212,96,138,0.4);">
+      🌸 入る
     </button>
   </div>
 </div>
@@ -601,15 +682,27 @@
 
 <!-- HOME PAGE -->
 <div class="page active" id="page-home">
+  <!-- 桜の装飾（ページ内） -->
+  <div class="sakura-deco top-left">🌸</div>
+  <div class="sakura-deco top-right">🌸</div>
+  <div class="sakura-deco mid-left">🌸</div>
+
   <div class="page-body">
     <!-- 通知許可バナー -->
-    <div id="notif-banner" style="display:none;background:#FFF3CD;border:2px solid #E8B84B;border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+    <div id="notif-banner" style="display:none;background:rgba(255,243,205,0.9);border:2px solid #E8B84B;border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
       <span style="font-size:1.4rem">🔔</span>
       <div style="flex:1;font-size:0.82rem;color:#7A5C00">配膳完了などの通知を受け取るには許可が必要です</div>
       <button onclick="requestPushPermission()" style="padding:8px 14px;background:var(--amber);color:white;border:none;border-radius:8px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.82rem;cursor:pointer;white-space:nowrap">許可する</button>
       <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:0 4px">✕</button>
     </div>
-    <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;color:var(--muted);margin-bottom:14px">アプリを選んでください</div>
+
+    <!-- ヒーロー -->
+    <div style="text-align:center;padding:10px 0 18px;position:relative">
+      <div style="font-size:2.6rem;margin-bottom:4px">🌸</div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.1rem;font-weight:700;color:var(--deep);margin-bottom:2px">家族のページ</div>
+      <div style="font-size:0.75rem;color:var(--muted)">おかめ桜のように、みんなで咲く</div>
+    </div>
+
     <div class="app-grid">
       <div class="app-card" onclick="goTo('board')">
         <span class="app-card-icon">📋</span>
@@ -638,7 +731,7 @@
       </div>
     </div>
     <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
-      <span>ver 2.5　</span><span>更新日：2026年3月25日</span>
+      🌸　<span>ver 2.5　</span><span>更新日：2026年3月25日</span>　🌸
     </div>
   </div>
 </div>
