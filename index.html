@@ -625,27 +625,6 @@
 <body>
 
 <!-- 家族用ロック画面 -->
-<div id="family-lock" style="position:fixed;inset:0;background:linear-gradient(160deg,var(--deep) 0%,var(--bark) 60%,#7A2055 100%);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;">
-  <!-- 桜の装飾 -->
-  <div style="position:absolute;top:-10px;left:-10px;font-size:120px;opacity:0.08;transform:rotate(-15deg);pointer-events:none">🌸</div>
-  <div style="position:absolute;bottom:-20px;right:-10px;font-size:100px;opacity:0.08;transform:rotate(20deg);pointer-events:none">🌸</div>
-  <div style="position:absolute;top:30%;right:-5px;font-size:70px;opacity:0.06;transform:rotate(10deg);pointer-events:none">🌸</div>
-
-  <div style="background:rgba(255,240,247,0.96);backdrop-filter:blur(16px);border-radius:24px;padding:40px 32px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(74,21,53,0.5);border:1px solid rgba(242,168,196,0.3);">
-    <div style="font-size:3rem;margin-bottom:12px">🌸</div>
-    <h2 style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.3rem;color:var(--deep);margin-bottom:6px">家族のページ</h2>
-    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:20px">おかめ桜のように、家族みんなで</p>
-    <input type="password" id="family-pw-input" placeholder="••••••" maxlength="20"
-      style="width:100%;padding:12px 14px;border:2px solid var(--warm);border-radius:10px;font-size:1.1rem;outline:none;text-align:center;letter-spacing:0.2em;margin-bottom:10px;color:var(--text);background:white;"
-      onkeydown="if(event.key==='Enter') checkFamilyPw()">
-    <div id="family-pw-error" style="color:var(--red);font-size:0.82rem;min-height:18px;margin-bottom:10px"></div>
-    <button onclick="checkFamilyPw()"
-      style="width:100%;padding:13px;background:linear-gradient(135deg,var(--amber),var(--brown));color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;cursor:pointer;box-shadow:0 4px 12px rgba(212,96,138,0.4);">
-      🌸 入る
-    </button>
-  </div>
-</div>
-
 <!-- ADMIN MODAL -->
 <div id="admin-modal">
   <div class="modal-box">
@@ -728,6 +707,16 @@
         <span class="app-card-icon">📦</span>
         <span class="app-card-label">在庫管理</span>
         <span class="app-card-desc">食材・賞味期限</span>
+      </div>
+      <div class="app-card" onclick="goTo('tesou')">
+        <span class="app-card-icon">🤚</span>
+        <span class="app-card-label">手相</span>
+        <span class="app-card-desc">筆係・感情線・生命線</span>
+      </div>
+      <div class="app-card" onclick="goTo('shift')">
+        <span class="app-card-icon">📅</span>
+        <span class="app-card-label">功稀シフト</span>
+        <span class="app-card-desc">シフト・スケジュール</span>
       </div>
     </div>
     <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:0.72rem;line-height:1.8">
@@ -1132,6 +1121,58 @@
   </div>
 </div>
 
+<!-- 手相ページ -->
+<div class="page" id="page-tesou">
+  <div class="page-body">
+    <!-- ヘッダー説明 -->
+    <div style="text-align:center;padding:8px 0 16px">
+      <div style="font-size:2.2rem;margin-bottom:4px">🤚</div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:var(--deep)">手相リーディング</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:3px">セッションを選んでください</div>
+    </div>
+
+    <!-- セッション切り替えタブ -->
+    <div style="display:flex;background:var(--warm);border-radius:12px;padding:4px;gap:4px;margin-bottom:16px">
+      <button class="tesou-tab active" id="tsess-0" onclick="switchTesouSession(0)" style="flex:1;padding:9px 4px;border:none;border-radius:9px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;cursor:pointer;transition:all .2s;background:white;color:var(--deep);font-weight:700;box-shadow:0 2px 6px rgba(212,96,138,0.15)">🤱 ママ</button>
+      <button class="tesou-tab" id="tsess-1" onclick="switchTesouSession(1)" style="flex:1;padding:9px 4px;border:none;border-radius:9px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)">セッション2</button>
+      <button class="tesou-tab" id="tsess-2" onclick="switchTesouSession(2)" style="flex:1;padding:9px 4px;border:none;border-radius:9px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)">セッション3</button>
+    </div>
+
+    <!-- セッションコンテンツ -->
+    <div id="tesou-session-area">
+      <!-- JS で描画 -->
+    </div>
+  </div>
+</div>
+
+<!-- 功稀シフトページ -->
+<div class="page" id="page-shift">
+  <div class="page-body">
+    <div style="text-align:center;padding:8px 0 20px">
+      <div style="font-size:2.2rem;margin-bottom:4px">📅</div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:var(--deep)">功稀シフト</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:3px">PDFを読み込むとシフトが表示されます</div>
+    </div>
+    <!-- 管理者：PDFアップロード -->
+    <div id="shift-upload-area" style="display:none;background:var(--warm);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+      <div style="font-size:0.82rem;color:var(--deep);font-family:'Zen Maru Gothic',sans-serif;margin-bottom:10px">📤 シフトPDFを更新</div>
+      <button onclick="document.getElementById('shift-file-input').click()" style="padding:9px 20px;background:var(--amber);color:white;border:none;border-radius:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;cursor:pointer">画像を選択（最大5枚）</button>
+      <input type="file" id="shift-file-input" accept="image/*" multiple style="display:none" onchange="shiftUploadImages(this)">
+    </div>
+    <!-- 表示エリア -->
+    <div id="shift-loading" style="text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:10px">📄</div>
+      <div style="font-size:0.88rem">読み込み中...</div>
+    </div>
+    <div id="shift-no-content" style="display:none;text-align:center;padding:40px 20px">
+      <div style="font-size:3rem;margin-bottom:12px">📭</div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:6px">シフトがありません</div>
+      <div style="font-size:0.82rem;color:var(--muted)">管理者がPDFをアップロードしてください</div>
+    </div>
+    <div id="shift-pages" style="display:flex;flex-direction:column;gap:12px;padding-bottom:60px"></div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div id="lightbox">
   <button id="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -1489,12 +1530,32 @@ function goTo(dest) {
     document.getElementById('header-title').textContent = '在庫管理';
     document.getElementById('back-btn').style.display = 'block';
     switchInvTab('list');
+  } else if (dest === 'tesou') {
+    showPage('tesou');
+    document.getElementById('bottom-nav').style.display = 'none';
+    document.getElementById('meal-tabs').style.display = 'none';
+    document.getElementById('care-tabs').style.display = 'none';
+    document.getElementById('inv-tabs').style.display = 'none';
+    document.getElementById('header-icon').textContent = '🤚';
+    document.getElementById('header-title').textContent = '手相';
+    document.getElementById('back-btn').style.display = 'block';
+    initTesouPage();
+  } else if (dest === 'shift') {
+    showPage('shift');
+    document.getElementById('bottom-nav').style.display = 'none';
+    document.getElementById('meal-tabs').style.display = 'none';
+    document.getElementById('care-tabs').style.display = 'none';
+    document.getElementById('inv-tabs').style.display = 'none';
+    document.getElementById('header-icon').textContent = '📅';
+    document.getElementById('header-title').textContent = '功稀シフト';
+    document.getElementById('back-btn').style.display = 'block';
+    initShiftPage();
   }
 }
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home', inventory: 'page-inventory' };
+  const idMap = { bulletin: 'page-bulletin', meal: 'page-meal', care: 'page-care', gcal: 'page-gcal', home: 'page-home', inventory: 'page-inventory', tesou: 'page-tesou', shift: 'page-shift' };
   document.getElementById(idMap[name] || 'page-home').classList.add('active');
   currentPage = name;
 }
@@ -3634,23 +3695,189 @@ function renderSimTable(yearData, target) {
 }
 
 // INIT - 認証チェック
-if (sessionStorage.getItem(FAMILY_UNLOCKED_KEY) === '1') {
-  document.getElementById('family-lock').style.display = 'none';
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-home').classList.add('active');
-  currentPage = 'home';
-  ['spend-cat', 'sedit-cat'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = buildCatOptions('food');
+// ============================================================
+// 手相ページ
+// ============================================================
+const FB_TESOU = `${FB_ROOT}/tesou`;
+let _tesouCurrentSession = 0;
+
+// デフォルトセッションデータ（ママ）
+const TESOU_DEFAULT_SESSIONS = [
+  { name: 'ママ', emoji: '🤱', lines: [
+    { key: 'lifeline',    label: '生命線',   emoji: '💚', desc: '右手の生命線が長く弧を描く。活力・生命力が強い。' },
+    { key: 'headline',    label: '頭脳線',   emoji: '🧠', desc: '横に真っ直ぐ伸びる。現実的・論理的な思考。' },
+    { key: 'heartline',   label: '感情線',   emoji: '❤️',  desc: '小指下から人差し指方向へ弧を描く。感受性豊か。' },
+    { key: 'fateline',    label: '運命線',   emoji: '⭐', desc: '手首から中指へ向かう縦線。強い運命線で意志が強い。' },
+    { key: 'sunline',     label: '太陽線',   emoji: '☀️',  desc: '薬指下に向かう線。才能・人気運に恵まれる。' },
+    { key: 'fingertype',  label: '指・手の形', emoji: '✋', desc: '指が長め。繊細で芸術的センスがある。' },
+  ]},
+  { name: 'セッション2', emoji: '🌸', lines: [
+    { key: 'lifeline',  label: '生命線',  emoji: '💚', desc: '' },
+    { key: 'headline',  label: '頭脳線',  emoji: '🧠', desc: '' },
+    { key: 'heartline', label: '感情線',  emoji: '❤️',  desc: '' },
+    { key: 'fateline',  label: '運命線',  emoji: '⭐', desc: '' },
+    { key: 'sunline',   label: '太陽線',  emoji: '☀️',  desc: '' },
+  ]},
+  { name: 'セッション3', emoji: '🌸', lines: [
+    { key: 'lifeline',  label: '生命線',  emoji: '💚', desc: '' },
+    { key: 'headline',  label: '頭脳線',  emoji: '🧠', desc: '' },
+    { key: 'heartline', label: '感情線',  emoji: '❤️',  desc: '' },
+    { key: 'fateline',  label: '運命線',  emoji: '⭐', desc: '' },
+    { key: 'sunline',   label: '太陽線',  emoji: '☀️',  desc: '' },
+  ]},
+];
+let _tesouSessions = null; // Firebase or default
+
+function initTesouPage() {
+  if (_tesouSessions) { renderTesouSession(_tesouCurrentSession); return; }
+  db.ref(FB_TESOU).once('value').then(snap => {
+    _tesouSessions = snap.val() || TESOU_DEFAULT_SESSIONS;
+    // セッション名タブ更新
+    _tesouSessions.forEach((s, i) => {
+      const btn = document.getElementById(`tsess-${i}`);
+      if (btn) btn.textContent = `${s.emoji || '🌸'} ${s.name}`;
+    });
+    renderTesouSession(_tesouCurrentSession);
+  }).catch(() => {
+    _tesouSessions = TESOU_DEFAULT_SESSIONS;
+    renderTesouSession(_tesouCurrentSession);
   });
-  try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
-  try { setupPushListener(); } catch(e) { console.error('Push listener error:', e); }
-  initFCM();
-  setTimeout(checkNotifBanner, 500);
-} else {
-  document.getElementById('family-lock').style.display = 'flex';
-  setTimeout(() => document.getElementById('family-pw-input').focus(), 100);
 }
+
+function switchTesouSession(idx) {
+  _tesouCurrentSession = idx;
+  document.querySelectorAll('.tesou-tab').forEach((btn, i) => {
+    const active = i === idx;
+    btn.style.background = active ? 'white' : 'transparent';
+    btn.style.color = active ? 'var(--deep)' : 'var(--muted)';
+    btn.style.fontWeight = active ? '700' : '400';
+    btn.style.boxShadow = active ? '0 2px 6px rgba(212,96,138,0.15)' : 'none';
+  });
+  renderTesouSession(idx);
+}
+
+function renderTesouSession(idx) {
+  const sessions = _tesouSessions || TESOU_DEFAULT_SESSIONS;
+  const sess = sessions[idx] || sessions[0];
+  const area = document.getElementById('tesou-session-area');
+  if (!area) return;
+
+  let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,rgba(212,96,138,0.1),rgba(74,21,53,0.06));border-radius:14px;border:1px solid rgba(212,96,138,0.2)">
+    <div style="font-size:2rem">${sess.emoji || '🌸'}</div>
+    <div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:var(--deep)">${escHtml(sess.name)} の手相</div>
+      <div style="font-size:0.75rem;color:var(--muted)">各線をタップして詳細を確認</div>
+    </div>
+  </div>`;
+
+  (sess.lines || []).forEach(line => {
+    const hasDesc = line.desc && line.desc.trim();
+    html += `<div onclick="toggleTesouDetail('${escHtml(line.key)}-${idx}')"
+      style="background:rgba(255,255,255,0.85);backdrop-filter:blur(6px);border-radius:14px;padding:14px 16px;margin-bottom:10px;
+             box-shadow:0 2px 10px rgba(212,96,138,0.08);border:1.5px solid rgba(242,168,196,0.3);cursor:pointer;transition:all .2s">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:1.6rem">${line.emoji || '✋'}</div>
+          <div>
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;font-weight:700;color:var(--deep)">${escHtml(line.label)}</div>
+            ${hasDesc ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:2px">タップして詳細を見る</div>` : `<div style="font-size:0.72rem;color:var(--muted);margin-top:2px">PDFで詳細を確認</div>`}
+          </div>
+        </div>
+        <div style="font-size:1rem;color:var(--muted)">${hasDesc ? '▼' : '—'}</div>
+      </div>
+      ${hasDesc ? `<div id="tesou-detail-${escHtml(line.key)}-${idx}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--warm);font-size:0.85rem;color:var(--text);line-height:1.7">${escHtml(line.desc)}</div>` : ''}
+    </div>`;
+  });
+
+  if (isAdmin) {
+    html += `<div style="text-align:center;margin-top:16px">
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px">管理者：PDFアップロード後、内容を編集できます</div>
+    </div>`;
+  }
+  area.innerHTML = html;
+}
+
+function toggleTesouDetail(key) {
+  const el = document.getElementById(`tesou-detail-${key}`);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ============================================================
+// 功稀シフトページ
+// ============================================================
+const FB_SHIFT           = `${FB_ROOT}/shift`;
+const STORAGE_SHIFT_DIR  = 'shift/pages/';
+
+function initShiftPage() {
+  const uploadArea = document.getElementById('shift-upload-area');
+  if (uploadArea) uploadArea.style.display = isAdmin ? 'block' : 'none';
+  loadShiftContent();
+}
+
+async function loadShiftContent() {
+  try {
+    const snap = await db.ref(FB_SHIFT).once('value');
+    const meta = snap.val();
+    if (!meta || !meta.pageUrls || meta.pageUrls.length === 0) {
+      document.getElementById('shift-loading').style.display = 'none';
+      document.getElementById('shift-no-content').style.display = 'block';
+      return;
+    }
+    document.getElementById('shift-loading').style.display = 'none';
+    document.getElementById('shift-no-content').style.display = 'none';
+    const container = document.getElementById('shift-pages');
+    container.innerHTML = '';
+    meta.pageUrls.forEach((url, i) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'width:100%;border-radius:12px;box-shadow:0 2px 12px rgba(212,96,138,0.15);display:block';
+      img.loading = 'lazy';
+      container.appendChild(img);
+    });
+  } catch(e) {
+    console.error('Shift load error:', e);
+    document.getElementById('shift-loading').style.display = 'none';
+    document.getElementById('shift-no-content').style.display = 'block';
+  }
+}
+
+async function shiftUploadImages(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  if (files.length > 5) { alert('最大5枚まで'); input.value=''; return; }
+  showToast('アップロード中...');
+  try {
+    // 旧削除
+    try {
+      const old = await db.ref(`${FB_SHIFT}/pageCount`).once('value');
+      for (let i=1; i<=(old.val()||0); i++) {
+        try { await storage.ref(`${STORAGE_SHIFT_DIR}page_${i}.jpg`).delete(); } catch(e){}
+      }
+    } catch(e){}
+    const pageUrls = [];
+    for (let i=0; i<files.length; i++) {
+      const ref = storage.ref(`${STORAGE_SHIFT_DIR}page_${i+1}.jpg`);
+      await ref.put(files[i], { contentType: files[i].type });
+      pageUrls.push(await ref.getDownloadURL());
+    }
+    await db.ref(FB_SHIFT).set({ uploadedAt: Date.now(), pageCount: files.length, pageUrls });
+    showToast(`✅ ${files.length}枚更新しました`);
+    input.value = '';
+    loadShiftContent();
+  } catch(e) {
+    alert('アップロード失敗: ' + e.message);
+  }
+}
+
+// 家族ロックなし - 直接起動
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.getElementById('page-home').classList.add('active');
+currentPage = 'home';
+try { setupFirebaseListeners(); } catch(e) { console.error('Firebase error:', e); }
+try { setupPushListener(); } catch(e) { console.error('Push listener error:', e); }
+initFCM();
+setTimeout(checkNotifBanner, 500);
 </script>
 </body>
 </html>
