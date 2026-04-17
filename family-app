@@ -3703,28 +3703,90 @@ let _tesouCurrentSession = 0;
 
 // デフォルトセッションデータ（ママ）
 const TESOU_DEFAULT_SESSIONS = [
-  { name: 'ママ', emoji: '🤱', lines: [
-    { key: 'lifeline',    label: '生命線',   emoji: '💚', desc: '右手の生命線が長く弧を描く。活力・生命力が強い。' },
-    { key: 'headline',    label: '頭脳線',   emoji: '🧠', desc: '横に真っ直ぐ伸びる。現実的・論理的な思考。' },
-    { key: 'heartline',   label: '感情線',   emoji: '❤️',  desc: '小指下から人差し指方向へ弧を描く。感受性豊か。' },
-    { key: 'fateline',    label: '運命線',   emoji: '⭐', desc: '手首から中指へ向かう縦線。強い運命線で意志が強い。' },
-    { key: 'sunline',     label: '太陽線',   emoji: '☀️',  desc: '薬指下に向かう線。才能・人気運に恵まれる。' },
-    { key: 'fingertype',  label: '指・手の形', emoji: '✋', desc: '指が長め。繊細で芸術的センスがある。' },
-  ]},
-  { name: 'セッション2', emoji: '🌸', lines: [
-    { key: 'lifeline',  label: '生命線',  emoji: '💚', desc: '' },
-    { key: 'headline',  label: '頭脳線',  emoji: '🧠', desc: '' },
-    { key: 'heartline', label: '感情線',  emoji: '❤️',  desc: '' },
-    { key: 'fateline',  label: '運命線',  emoji: '⭐', desc: '' },
-    { key: 'sunline',   label: '太陽線',  emoji: '☀️',  desc: '' },
-  ]},
-  { name: 'セッション3', emoji: '🌸', lines: [
-    { key: 'lifeline',  label: '生命線',  emoji: '💚', desc: '' },
-    { key: 'headline',  label: '頭脳線',  emoji: '🧠', desc: '' },
-    { key: 'heartline', label: '感情線',  emoji: '❤️',  desc: '' },
-    { key: 'fateline',  label: '運命線',  emoji: '⭐', desc: '' },
-    { key: 'sunline',   label: '太陽線',  emoji: '☀️',  desc: '' },
-  ]},
+  { name: 'ママ', emoji: '🤱', date: '2026年4月12日',
+    summary: { rank: 'B', score: 48, max: 80, comment: '安定した健康基盤（手首線A）を土台に、自力で道を切り開くタイプ。感情・対人・縁の素質は思った以上に豊かで、右手が左手に近づくほど輝く相。' },
+    sections: [
+      {
+        key: 'overview', label: '総合評価', emoji: '📊',
+        color: '#D4608A',
+        items: [
+          { label: '健康・生命力', rank: 'B', score: 7, detail: '手首線Aが支える健康基盤。素質＞現実に開きあり' },
+          { label: '愛情・感情',   rank: 'B', score: 6, detail: '素質の豊かな感情力を現実で抑制中' },
+          { label: '思考・判断力', rank: 'B', score: 7, detail: '左右一致。実務的・論理的思考が安定' },
+          { label: 'キャリア・運命',rank: 'C', score: 5, detail: '両手一致の自力開拓型。模索期' },
+          { label: '財運・才能',   rank: 'C', score: 5, detail: '才能は育ち中。発信・経験で開花へ' },
+          { label: '恋愛・縁',     rank: 'C', score: 5, detail: '縁の素質はあり。自己充実が鍵' },
+          { label: '対人・社交',   rank: 'C', score: 5, detail: '本来の対人力を現実で発揮しきれていない' },
+          { label: '健康基盤',     rank: 'A', score: 8, detail: '手首線が示す安定した生命基盤。最大の強み' },
+        ]
+      },
+      {
+        key: 'lifeline', label: '生命線', emoji: '💚', color: '#5BA55B',
+        right: { rank: 'B', score: 6, desc: '弧がやや小さく（内向き）線は薄め〜中程度。慎重さ・内省的な行動スタイル。過去〜現在にかけて体力の消耗があった可能性。' },
+        left:  { rank: 'B', score: 7, desc: '右手より弧が広く長い。素質的な生命力の豊かさを示す。二重生命線の兆候あり。' },
+        judge: '↑差あり', advice: '持って生まれた体力ポテンシャルは高い。規則的な生活と運動習慣を取り入れることで右手の線も成長する。'
+      },
+      {
+        key: 'heartline', label: '感情線', emoji: '❤️', color: '#D4608A',
+        right: { rank: 'B', score: 6, desc: '小指付け根から中指方向へやや短め。感情表現が控えめ・内省的。感情を内側で処理する傾向。' },
+        left:  { rank: 'A', score: 8, desc: '右手より長く人差し指方向まで伸び終点が上向き。愛情の深さ・感情の豊かさ・他者への共感力が高い。一途で誠実な愛情スタイル。' },
+        judge: '↑差あり（素質＞現実）', advice: '本来は愛情深い相。感情を内に抱え込みすぎず、信頼できる人への感情共有を大切に。'
+      },
+      {
+        key: 'headline', label: '頭脳線', emoji: '🧠', color: '#6080B0',
+        right: { rank: 'B', score: 7, desc: 'ほぼ水平に伸びる実務的・現実的な思考スタイル。地に足のついた判断力。終点付近がやや薄め。' },
+        left:  { rank: 'B', score: 7, desc: '右手とほぼ同等。独立型に近い起点が独立心・自主性・行動力の素質を示す。' },
+        judge: '＝左右一致', advice: '思考の一貫性は大きな強み。判断に自信を持って。考えると決めるを意識的に分けることが鍵。'
+      },
+      {
+        key: 'fateline', label: '運命線', emoji: '⭐', color: '#E8B84B',
+        right: { rank: 'C', score: 4, desc: '線が非常に薄く断続的。方向性が「まだ定まりきっていない」または模索中。薄い運命線は弱さではなく、自分で道を作っている証。' },
+        left:  { rank: 'C', score: 5, desc: '右手より若干確認しやすい。素質ベースでも方向性が流動的。自分の意志で方向を決めることが人生の主要テーマ。' },
+        judge: '＝左右一致', advice: '今は模索期。焦らず自分の興味・得意なことに集中することで線が濃くなる。'
+      },
+      {
+        key: 'sunline', label: '太陽線（財運線）', emoji: '☀️', color: '#FFB347',
+        right: { rank: 'C', score: 4, desc: '薬指方向への縦線はほとんど確認できない。才能がまだ十分に外に表現されていない時期。' },
+        left:  { rank: 'C', score: 5, desc: '右手よりわずかに薬指下に線の痕跡あり。生まれ持った才能・センスの芽は存在する。' },
+        judge: '＝左右一致', advice: '才能を外に発信する機会を積極的に作ることで線は濃くなる。好きなことに時間を使うことが財運線を育てる最短ルート。'
+      },
+      {
+        key: 'marriageline', label: '結婚線・縁線', emoji: '💍', color: '#A07BE0',
+        right: { rank: 'C', score: 4, desc: '薄く短い。縁がない訳ではなく「まだ時期ではない」または「慎重に見極めている」状態。' },
+        left:  { rank: 'B', score: 6, desc: '右手より若干明確。感情線から距離があり晩成型の縁。成熟した視点でパートナーを選ぶタイプ。' },
+        judge: '↑差あり（素質＞現実）', advice: '素質として良縁の力は持っている。自分自身が充実することで縁は自然と引き寄せられる。'
+      },
+      {
+        key: 'branchlines', label: '感情線の枝線・支線', emoji: '🌿', color: '#7EC8A0',
+        right: { rank: 'C', score: 4, desc: '上向き枝線がほとんど確認できない。感情的な疲れが蓄積している可能性。人間関係の整理・絞り込みが有効。' },
+        left:  { rank: 'B', score: 6, desc: '感情線から上向きの枝線がいくつか確認できる。人との関わりの中で幸福感を得やすい相。' },
+        judge: '↑差あり（素質＞現実）', advice: '意識的に人との交流を増やすことで、右手の線も整ってくる。深い縁を数少なく大切に。'
+      },
+      {
+        key: 'rascette', label: '手首線（ラセット線）', emoji: '💪', color: '#E07B5A',
+        right: { rank: 'A', score: 8, desc: '手首に2〜3本の明確な横線。安定した生命力の基盤の吉相。現実においても健康の土台がしっかりしている。' },
+        left:  { rank: 'A', score: 8, desc: '右手同様に複数の横線。左右一致の手首線は持って生まれた健康力が現実にも反映されている証。' },
+        judge: '★左右一致（良）', advice: '健康基盤は最大の財産。規則正しい生活がこの吉相を維持する。'
+      },
+      {
+        key: 'handshape', label: '手の形・指の特徴', emoji: '✋', color: '#C08060',
+        items: [
+          { label: '全体的な線の薄さ', rank: 'C', desc: '「まだ人生が形成中」。経験を積むにつれて線は自然と明確に。柔軟性・環境適応力が高い。' },
+          { label: '手の大きさ・形状', rank: 'B', desc: '手のひらが広く横長型。実務的能力と感性のバランス型。細やかな気配り・視野の広さ。' },
+          { label: '指の長さ・形',     rank: 'B', desc: '指が長め・やや細め。分析力・観察力・こだわりの強さ。感受性の繊細さ・芸術的センス。' },
+          { label: '小指の長さ',       rank: 'B', desc: '標準的な長さ。バランスのとれたコミュニケーション力。言葉で気持ちを伝える素質あり。' },
+          { label: '親指の形・角度',   rank: 'A', desc: '反り気味で開き気味。寛大さ・柔軟性・他者への共感力が高い吉相。意志力・粘り強さの象徴。' },
+        ]
+      },
+    ],
+    advice: {
+      now: ['感情を言葉にする習慣（日記・話し合い・SNS）で感情線が明確に', '運動・睡眠の習慣化 → 生命線を補う最短ルート', '人との交流を増やす → 感情線・結婚線を育てる直接的な行動'],
+      mid:  ['得意なことの発信（SNS・作品発表・趣味の共有）で太陽線を育てる', '「これが好き」を追求する → 運命線は好奇心の先に形成される', '信頼できる人間関係を深める → 結婚線にも好影響'],
+      long: ['生命線の薄さは今後の行動で必ず変わる → 今の選択が10年後の手相を作る', '素質（左手）のポテンシャルが高い → 経験を積むほど右手が左手に近づく', '手首線Aの健康基盤が全ての土台'],
+    }
+  },
+  { name: 'セッション2', emoji: '🌸', date: '', summary: null, sections: [], advice: null },
+  { name: 'セッション3', emoji: '🌸', date: '', summary: null, sections: [], advice: null },
 ];
 let _tesouSessions = null; // Firebase or default
 
@@ -3756,118 +3818,279 @@ function switchTesouSession(idx) {
   renderTesouSession(idx);
 }
 
+function rankColor(rank) {
+  return rank==='A'?'#E8B84B':rank==='B'?'#5BA55B':rank==='C'?'#D4608A':'#9A8070';
+}
+function rankBg(rank) {
+  return rank==='A'?'#FFF8E0':rank==='B'?'#EEF7EE':rank==='C'?'#FFF0F5':'#F5F5F5';
+}
+function scoreBar(score, max=10) {
+  const pct = Math.round((score/max)*100);
+  return `<div style="background:#F0E0EA;border-radius:10px;height:8px;overflow:hidden;margin-top:4px"><div style="height:100%;border-radius:10px;background:var(--amber);width:${pct}%"></div></div>`;
+}
+
 function renderTesouSession(idx) {
   const sessions = _tesouSessions || TESOU_DEFAULT_SESSIONS;
   const sess = sessions[idx] || sessions[0];
   const area = document.getElementById('tesou-session-area');
   if (!area) return;
 
-  let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,rgba(212,96,138,0.1),rgba(74,21,53,0.06));border-radius:14px;border:1px solid rgba(212,96,138,0.2)">
-    <div style="font-size:2rem">${sess.emoji || '🌸'}</div>
-    <div>
-      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:var(--deep)">${escHtml(sess.name)} の手相</div>
-      <div style="font-size:0.75rem;color:var(--muted)">各線をタップして詳細を確認</div>
+  // セッションデータなし
+  if (!sess.sections || sess.sections.length === 0) {
+    area.innerHTML = `<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:3rem;margin-bottom:12px">🌸</div>
+      <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;color:var(--deep);margin-bottom:6px">${escHtml(sess.name)} のセッション</div>
+      <div style="font-size:0.82rem;color:var(--muted)">PDFデータを準備中です</div>
+    </div>`;
+    return;
+  }
+
+  // サマリーカード
+  let html = `<div style="background:linear-gradient(135deg,var(--deep),var(--bark));border-radius:16px;padding:16px;margin-bottom:14px;color:white">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:2rem">${sess.emoji||'🌸'}</div>
+      <div>
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700">${escHtml(sess.name)} の手相鑑定</div>
+        <div style="font-size:0.72rem;opacity:0.7;margin-top:2px">鑑定日：${sess.date||'—'}</div>
+      </div>
+      ${sess.summary?`<div style="margin-left:auto;background:rgba(255,255,255,0.15);border-radius:12px;padding:8px 14px;text-align:center">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1.4rem;font-weight:700">${sess.summary.rank}</div>
+        <div style="font-size:0.68rem;opacity:0.8">${sess.summary.score}/${sess.summary.max}点</div>
+      </div>`:''}
     </div>
+    ${sess.summary?`<div style="font-size:0.8rem;opacity:0.85;line-height:1.7">${escHtml(sess.summary.comment)}</div>`:''}
   </div>`;
 
-  (sess.lines || []).forEach(line => {
-    const hasDesc = line.desc && line.desc.trim();
-    html += `<div onclick="toggleTesouDetail('${escHtml(line.key)}-${idx}')"
-      style="background:rgba(255,255,255,0.85);backdrop-filter:blur(6px);border-radius:14px;padding:14px 16px;margin-bottom:10px;
-             box-shadow:0 2px 10px rgba(212,96,138,0.08);border:1.5px solid rgba(242,168,196,0.3);cursor:pointer;transition:all .2s">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="font-size:1.6rem">${line.emoji || '✋'}</div>
-          <div>
-            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;font-weight:700;color:var(--deep)">${escHtml(line.label)}</div>
-            ${hasDesc ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:2px">タップして詳細を見る</div>` : `<div style="font-size:0.72rem;color:var(--muted);margin-top:2px">PDFで詳細を確認</div>`}
+  // 各セクション
+  (sess.sections||[]).forEach(sec => {
+    if (sec.key === 'overview') {
+      // 総合評価グリッド
+      html += `<div onclick="toggleTesouDetail('overview-${idx}')" style="background:rgba(255,255,255,0.88);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(212,96,138,0.08);border:1.5px solid rgba(242,168,196,0.3);cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:1.4rem">${sec.emoji||'📊'}</div>
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;font-weight:700;color:var(--deep)">${escHtml(sec.label)}</div>
+          </div>
+          <div id="tesou-detail-overview-${idx}-arrow" style="font-size:0.9rem;color:var(--muted)">▼</div>
+        </div>
+        <div id="tesou-detail-overview-${idx}" style="display:none">
+          ${(sec.items||[]).map(item=>`
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--warm)">
+              <div style="width:60px;font-size:0.75rem;color:var(--muted);flex-shrink:0">${escHtml(item.label)}</div>
+              <div style="background:${rankBg(item.rank)};color:${rankColor(item.rank)};font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;font-weight:700;padding:2px 8px;border-radius:6px;flex-shrink:0">${item.rank}</div>
+              <div style="flex:1">${scoreBar(item.score)}</div>
+              <div style="font-size:0.68rem;color:var(--muted);max-width:120px;text-align:right;line-height:1.4">${escHtml(item.detail)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    } else if (sec.key === 'handshape') {
+      // 手の形・特殊相
+      html += `<div onclick="toggleTesouDetail('handshape-${idx}')" style="background:rgba(255,255,255,0.88);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(212,96,138,0.08);border:1.5px solid rgba(242,168,196,0.3);cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:1.4rem">${sec.emoji||'✋'}</div>
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;font-weight:700;color:var(--deep)">${escHtml(sec.label)}</div>
+          </div>
+          <div style="font-size:0.9rem;color:var(--muted)">▼</div>
+        </div>
+        <div id="tesou-detail-handshape-${idx}" style="display:none;margin-top:10px">
+          ${(sec.items||[]).map(item=>`
+            <div style="background:${rankBg(item.rank)};border-radius:10px;padding:10px 12px;margin-bottom:8px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;font-weight:700;color:var(--deep)">${escHtml(item.label)}</div>
+                <div style="background:${rankColor(item.rank)};color:white;font-size:0.72rem;font-weight:700;padding:1px 7px;border-radius:6px">${item.rank}</div>
+              </div>
+              <div style="font-size:0.8rem;color:var(--text);line-height:1.7">${escHtml(item.desc)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    } else {
+      // 通常ライン（右手・左手比較）
+      const rRank = sec.right?.rank||'—', lRank = sec.left?.rank||'—';
+      html += `<div onclick="toggleTesouDetail('${sec.key}-${idx}')" style="background:rgba(255,255,255,0.88);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(212,96,138,0.08);border:1.5px solid rgba(242,168,196,0.3);cursor:pointer;border-left:4px solid ${sec.color||'var(--amber)'}">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:1.5rem">${sec.emoji||'✋'}</div>
+            <div>
+              <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;font-weight:700;color:var(--deep)">${escHtml(sec.label)}</div>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">右:${rRank}　左:${lRank}　${escHtml(sec.judge||'')}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center">
+            <div style="background:${rankBg(rRank)};color:${rankColor(rRank)};font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;font-weight:700;padding:3px 10px;border-radius:8px">${rRank}</div>
+            <div style="font-size:0.7rem;color:var(--muted)">→</div>
+            <div style="background:${rankBg(lRank)};color:${rankColor(lRank)};font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;font-weight:700;padding:3px 10px;border-radius:8px">${lRank}</div>
           </div>
         </div>
-        <div style="font-size:1rem;color:var(--muted)">${hasDesc ? '▼' : '—'}</div>
-      </div>
-      ${hasDesc ? `<div id="tesou-detail-${escHtml(line.key)}-${idx}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--warm);font-size:0.85rem;color:var(--text);line-height:1.7">${escHtml(line.desc)}</div>` : ''}
-    </div>`;
+        <div id="tesou-detail-${sec.key}-${idx}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--warm)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div style="background:#FFF8FB;border-radius:10px;padding:10px;border:1px solid rgba(212,96,138,0.15)">
+              <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.75rem;font-weight:700;color:var(--deep);margin-bottom:4px">✋ 右手（現実の相）</div>
+              ${scoreBar(sec.right?.score||0)}
+              <div style="font-size:0.78rem;color:var(--text);line-height:1.7;margin-top:6px">${escHtml(sec.right?.desc||'')}</div>
+            </div>
+            <div style="background:#F8FBF8;border-radius:10px;padding:10px;border:1px solid rgba(91,165,91,0.15)">
+              <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.75rem;font-weight:700;color:#3A7A3A;margin-bottom:4px">🤚 左手（素質の相）</div>
+              ${scoreBar(sec.left?.score||0)}
+              <div style="font-size:0.78rem;color:var(--text);line-height:1.7;margin-top:6px">${escHtml(sec.left?.desc||'')}</div>
+            </div>
+          </div>
+          <div style="background:rgba(212,96,138,0.06);border-radius:10px;padding:10px;border-left:3px solid var(--amber)">
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.75rem;font-weight:700;color:var(--deep);margin-bottom:3px">▶ アドバイス</div>
+            <div style="font-size:0.8rem;color:var(--text);line-height:1.7">${escHtml(sec.advice||'')}</div>
+          </div>
+        </div>
+      </div>`;
+    }
   });
 
-  if (isAdmin) {
-    html += `<div style="text-align:center;margin-top:16px">
-      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px">管理者：PDFアップロード後、内容を編集できます</div>
+  // アドバイスセクション
+  if (sess.advice) {
+    html += `<div onclick="toggleTesouDetail('advice-${idx}')" style="background:linear-gradient(135deg,rgba(212,96,138,0.08),rgba(74,21,53,0.04));border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid rgba(212,96,138,0.2);cursor:pointer">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.92rem;font-weight:700;color:var(--deep)">💡 総合アドバイス</div>
+        <div style="font-size:0.9rem;color:var(--muted)">▼</div>
+      </div>
+      <div id="tesou-detail-advice-${idx}" style="display:none;margin-top:10px">
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.8rem;font-weight:700;color:var(--amber);margin-bottom:6px">🌸 今すぐできること</div>
+        ${(sess.advice.now||[]).map(a=>`<div style="font-size:0.8rem;color:var(--text);padding:4px 0 4px 12px;border-left:2px solid var(--amber);margin-bottom:4px;line-height:1.6">${escHtml(a)}</div>`).join('')}
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.8rem;font-weight:700;color:#5BA55B;margin:10px 0 6px">🌿 中期的に取り組むこと</div>
+        ${(sess.advice.mid||[]).map(a=>`<div style="font-size:0.8rem;color:var(--text);padding:4px 0 4px 12px;border-left:2px solid #7EC8A0;margin-bottom:4px;line-height:1.6">${escHtml(a)}</div>`).join('')}
+        <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.8rem;font-weight:700;color:#6080B0;margin:10px 0 6px">✨ 長期的な視点</div>
+        ${(sess.advice.long||[]).map(a=>`<div style="font-size:0.8rem;color:var(--text);padding:4px 0 4px 12px;border-left:2px solid #7B9FE0;margin-bottom:4px;line-height:1.6">${escHtml(a)}</div>`).join('')}
+      </div>
     </div>`;
   }
+
   area.innerHTML = html;
 }
 
 function toggleTesouDetail(key) {
   const el = document.getElementById(`tesou-detail-${key}`);
   if (!el) return;
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  // 矢印も更新
+  const arrow = document.getElementById(`tesou-detail-${key}-arrow`);
+  if (arrow) arrow.textContent = open ? '▲' : '▼';
 }
 
 // ============================================================
-// 功稀シフトページ
+// 功稀シフトページ（PDFデータ直接反映）
 // ============================================================
-const FB_SHIFT           = `${FB_ROOT}/shift`;
-const STORAGE_SHIFT_DIR  = 'shift/pages/';
+const SHIFT_DATA = [
+  {
+    week: '第1週', period: '2026/4/13（月）〜 2026/4/19（日）',
+    days: [
+      { date: '4/13(月)', dow: '月', type: '休', label: '休日', work: '—', rise: '06:00', sleep: '22:00', note: '' },
+      { date: '4/14(火)', dow: '火', type: '休', label: '休日', work: '—', rise: '06:00', sleep: '21:00', note: '' },
+      { date: '4/15(水)', dow: '水', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:00', note: '中種配合　休憩11:00〜' },
+      { date: '4/16(木)', dow: '木', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:30', note: '中種配合' },
+      { date: '4/17(金)', dow: '金', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:00', note: '中種配合' },
+      { date: '4/18(土)', dow: '土', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '22:15', note: '中種配合' },
+      { date: '4/19(日)', dow: '日', type: '休', label: '休日', work: '—', rise: '07:15', sleep: '22:30', note: '' },
+    ]
+  },
+  {
+    week: '第2週', period: '2026/4/20（月）〜 2026/4/26（日）',
+    days: [
+      { date: '4/20(月)', dow: '月', type: '早', label: '早番', work: '06:00〜15:00', rise: '06:00', sleep: '21:00', note: '中種配合' },
+      { date: '4/21(火)', dow: '火', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:00', note: '中種配合' },
+      { date: '4/22(水)', dow: '水', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:00', note: 'フリー（新ポジ教育）' },
+      { date: '4/23(木)', dow: '木', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '23:00', note: '中種配合' },
+      { date: '4/24(金)', dow: '金', type: '中', label: '中番', work: '10:00〜19:00', rise: '05:00', sleep: '23:00', note: '中種専属' },
+      { date: '4/25(土)', dow: '土', type: '中', label: '中番', work: '09:00〜18:00', rise: '06:00', sleep: '23:00', note: '【高卒教育】中種教育' },
+      { date: '4/26(日)', dow: '日', type: '休', label: '休日', work: '—', rise: '08:00', sleep: '22:00', note: '' },
+    ]
+  },
+  {
+    week: '第3週', period: '2026/4/27（月）〜 2026/5/3（日）',
+    days: [
+      { date: '4/27(月)', dow: '月', type: '休', label: '休日', work: '—', rise: '06:00', sleep: '21:00', note: '＊勤務外：労働組合（仮）18:15〜19:00' },
+      { date: '4/28(火)', dow: '火', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:00', note: '本捏配合' },
+      { date: '4/29(水)', dow: '水', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '21:00', note: '本捏配合' },
+      { date: '4/30(木)', dow: '木', type: '早', label: '早番', work: '06:00〜15:00', rise: '04:00', sleep: '23:00', note: '中種配合' },
+      { date: '5/1(金)',  dow: '金', type: '休', label: '4連休①', work: '—', rise: '06:00', sleep: '22:00', note: '' },
+      { date: '5/2(土)',  dow: '土', type: '休', label: '4連休②', work: '—', rise: '06:00', sleep: '—', note: '' },
+      { date: '5/3(日)',  dow: '日', type: '休', label: '4連休③', work: '—', rise: '—', sleep: '22:00', note: '' },
+    ]
+  }
+];
+
+function typeColor(t) {
+  return t==='早'?'#5BA55B':t==='中'?'#E8B84B':t==='遅'?'#D4608A':t==='夜'?'#6080B0':'#AAA';
+}
+function typeBg(t) {
+  return t==='早'?'#EEF7EE':t==='中'?'#FFF8E0':t==='遅'?'#FFF0F5':t==='夜'?'#EEF0F8':'#F0F0F0';
+}
 
 function initShiftPage() {
-  const uploadArea = document.getElementById('shift-upload-area');
-  if (uploadArea) uploadArea.style.display = isAdmin ? 'block' : 'none';
-  loadShiftContent();
-}
+  const area = document.getElementById('shift-pages');
+  if (!area) return;
+  document.getElementById('shift-loading').style.display = 'none';
+  document.getElementById('shift-no-content').style.display = 'none';
+  document.getElementById('shift-upload-area').style.display = 'none';
 
-async function loadShiftContent() {
-  try {
-    const snap = await db.ref(FB_SHIFT).once('value');
-    const meta = snap.val();
-    if (!meta || !meta.pageUrls || meta.pageUrls.length === 0) {
-      document.getElementById('shift-loading').style.display = 'none';
-      document.getElementById('shift-no-content').style.display = 'block';
-      return;
-    }
-    document.getElementById('shift-loading').style.display = 'none';
-    document.getElementById('shift-no-content').style.display = 'none';
-    const container = document.getElementById('shift-pages');
-    container.innerHTML = '';
-    meta.pageUrls.forEach((url, i) => {
-      const img = document.createElement('img');
-      img.src = url;
-      img.style.cssText = 'width:100%;border-radius:12px;box-shadow:0 2px 12px rgba(212,96,138,0.15);display:block';
-      img.loading = 'lazy';
-      container.appendChild(img);
+  // 凡例
+  let html = `<div style="background:rgba(255,255,255,0.88);border-radius:12px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(212,96,138,0.08)">
+    <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.78rem;color:var(--deep);font-weight:700;margin-bottom:8px">📋 シフト凡例</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${[['早','早番 〜09:59'],['中','中番 10〜13:59'],['遅','遅番 14〜17:59'],['夜','夜勤 18:00〜'],['休','休日']].map(([t,l])=>
+        `<div style="display:flex;align-items:center;gap:4px">
+          <div style="background:${typeColor(t)};color:white;font-family:'Zen Maru Gothic',sans-serif;font-size:0.72rem;font-weight:700;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center">${t}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">${l}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // 週ごとにカード
+  SHIFT_DATA.forEach((week, wi) => {
+    // 週サマリー
+    const workDays = week.days.filter(d=>d.type!=='休').length;
+    const restDays = week.days.filter(d=>d.type==='休').length;
+    html += `<div style="background:rgba(255,255,255,0.88);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(212,96,138,0.08);border:1.5px solid rgba(242,168,196,0.2)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.95rem;font-weight:700;color:var(--deep)">${week.week}</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">${week.period}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <div style="background:#EEF7EE;border-radius:8px;padding:4px 10px;text-align:center">
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:#5BA55B">${workDays}</div>
+            <div style="font-size:0.65rem;color:var(--muted)">出勤</div>
+          </div>
+          <div style="background:#F5F5F5;border-radius:8px;padding:4px 10px;text-align:center">
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;color:#AAA">${restDays}</div>
+            <div style="font-size:0.65rem;color:var(--muted)">休日</div>
+          </div>
+        </div>
+      </div>`;
+
+    // 日別
+    week.days.forEach(day => {
+      const isRest = day.type === '休';
+      html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px solid var(--warm)">
+        <div style="flex-shrink:0;width:52px;text-align:center">
+          <div style="font-size:0.75rem;color:var(--muted)">${day.date}</div>
+          <div style="background:${typeColor(day.type)};color:white;font-family:'Zen Maru Gothic',sans-serif;font-size:0.8rem;font-weight:700;border-radius:6px;padding:2px 0;margin-top:3px">${day.type}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <div style="font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;font-weight:700;color:var(--deep)">${day.label}</div>
+            ${!isRest?`<div style="font-size:0.8rem;color:var(--muted)">🕐 ${day.work}</div>`:''}
+          </div>
+          ${day.note?`<div style="font-size:0.75rem;color:var(--amber);margin-top:2px">📝 ${escHtml(day.note)}</div>`:''}
+          <div style="display:flex;gap:10px;margin-top:3px">
+            ${day.rise!=='—'?`<div style="font-size:0.72rem;color:var(--muted)">☀️ ${day.rise}起</div>`:''}
+            ${day.sleep!=='—'?`<div style="font-size:0.72rem;color:var(--muted)">🌙 ${day.sleep}就</div>`:''}
+          </div>
+        </div>
+      </div>`;
     });
-  } catch(e) {
-    console.error('Shift load error:', e);
-    document.getElementById('shift-loading').style.display = 'none';
-    document.getElementById('shift-no-content').style.display = 'block';
-  }
-}
+    html += `</div>`;
+  });
 
-async function shiftUploadImages(input) {
-  const files = Array.from(input.files);
-  if (!files.length) return;
-  if (files.length > 5) { alert('最大5枚まで'); input.value=''; return; }
-  showToast('アップロード中...');
-  try {
-    // 旧削除
-    try {
-      const old = await db.ref(`${FB_SHIFT}/pageCount`).once('value');
-      for (let i=1; i<=(old.val()||0); i++) {
-        try { await storage.ref(`${STORAGE_SHIFT_DIR}page_${i}.jpg`).delete(); } catch(e){}
-      }
-    } catch(e){}
-    const pageUrls = [];
-    for (let i=0; i<files.length; i++) {
-      const ref = storage.ref(`${STORAGE_SHIFT_DIR}page_${i+1}.jpg`);
-      await ref.put(files[i], { contentType: files[i].type });
-      pageUrls.push(await ref.getDownloadURL());
-    }
-    await db.ref(FB_SHIFT).set({ uploadedAt: Date.now(), pageCount: files.length, pageUrls });
-    showToast(`✅ ${files.length}枚更新しました`);
-    input.value = '';
-    loadShiftContent();
-  } catch(e) {
-    alert('アップロード失敗: ' + e.message);
-  }
+  area.innerHTML = html;
 }
 
 // 家族ロックなし - 直接起動
